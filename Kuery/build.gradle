@@ -35,12 +35,12 @@ uploadArchives {
             pom.project {
                 name project.name
                 description "MySQL Kotlin DSL/ORM based on HikariCP"
-                url "https://github.com/Sxtanna/Kuery"
+                url "https://github.com/Sxtanna/KDatabases"
 
                 scm {
-                    connection 'scm:git:git://github.com/Sxtanna/Kuery.git'
-                    developerConnection 'scm:git:git://github.com/Sxtanna/Kuery.git'
-                    url 'https://github.com/Sxtanna/Kuery.git'
+                    connection 'scm:git:git://github.com/Sxtanna/KDatabases.git'
+                    developerConnection 'scm:git:git://github.com/Sxtanna/KDatabases.git'
+                    url 'https://github.com/Sxtanna/KDatabases.git'
                 }
 
                 licenses {
