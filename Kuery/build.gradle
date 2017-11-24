@@ -1,0 +1,64 @@
+group 'com.sxtanna.db'
+version '1.0'
+
+ext {
+    versionHikariCP = '2.7.3'
+    versionMariaDBCJ = '2.2.0'
+
+    versionSLF4JSimple = '1.8.0-beta0'
+}
+
+dependencies {
+
+    implementation "com.zaxxer:HikariCP:$versionHikariCP"
+    implementation "org.mariadb.jdbc:mariadb-java-client:$versionMariaDBCJ"
+
+    testCompile "org.slf4j:slf4j-simple:$versionSLF4JSimple"
+
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+
+            pom.project {
+                name project.name
+                description "MySQL Kotlin DSL/ORM based on HikariCP"
+                url "https://github.com/Sxtanna/Kuery"
+
+                scm {
+                    connection 'scm:git:git://github.com/Sxtanna/Kuery.git'
+                    developerConnection 'scm:git:git://github.com/Sxtanna/Kuery.git'
+                    url 'https://github.com/Sxtanna/Kuery.git'
+                }
+
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+
+                developers {
+                    developer {
+                        name 'Sxtanna'
+                        email 'me@sxtanna.com'
+                    }
+                }
+
+            }
+
+        }
+    }
+}
