@@ -127,13 +127,20 @@ subprojects {
     }
 
     nexusStaging {
-        packageGroup = project.group
+        packageGroup = 'com.sxtanna'
     }
 
 
     // global build task
     task buildProjects(dependsOn: [clean, shadowJar, sourcesJar, javadocJar])
 
-    task buildAndUpload(dependsOn: [buildProjects, uploadArchives, closeRepository, promoteRepository])
+    /**
+     * Automatic upload, close, and release is broken for some reason
+     *
+     * Run in this order
+     *  * uploadArchives
+     *  * closeRepository
+     *  * promoteRepository
+     */
 
 }
