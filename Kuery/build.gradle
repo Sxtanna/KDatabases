@@ -1,8 +1,8 @@
 group 'com.sxtanna.db'
-version '1.1'
+version '1.2'
 
 ext {
-    versionHikariCP = '2.7.3'
+    versionHikariCP = '2.7.4'
     versionMariaDBCJ = '2.2.0'
 
     versionSLF4JSimple = '1.8.0-beta0'
