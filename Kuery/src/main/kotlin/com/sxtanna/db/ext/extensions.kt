@@ -15,6 +15,7 @@ internal fun Boolean.value(input : String?) = if (this) input ?: "" else ""
 internal fun <T : Any> Boolean.value(input : T?) = if (this) input else null
 
 
+//region Property attribute retrievable
 internal fun KProperty1<*, *>.isNotNull() : Attribute<*>? {
     return returnType.isMarkedNullable.not().value(SqlNotNull)
 }
@@ -26,6 +27,8 @@ internal fun KProperty1<*, *>.isPrimary() : Attribute<*>? {
 internal fun KProperty1<*, *>.isUnsigned() : Attribute<*>? {
     return findAnnotation<Unsigned>()?.let { SqlUnsigned }
 }
+//endregion
+
 
 //region ResultSet whileNext implementations
 /**
@@ -45,7 +48,6 @@ inline fun <O> ResultSet.mapWhileNext(mapper : ResultSet.() -> O) : List<O> {
     return output
 }
 //endregion
-
 
 
 //region Kuery `Value`
