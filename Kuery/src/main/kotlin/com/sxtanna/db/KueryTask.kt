@@ -34,7 +34,7 @@ import kotlin.reflect.full.primaryConstructor
  *
  * [kotlin.reflect.KClass.properties]
  */
-class KueryTask(private val kuery : Kuery, private val connection : Connection) : Creator, Deleter, Inserter, Selector, Updater {
+class KueryTask(private val kuery : Kuery, private val connection : Connection) : Creator, Deleter, Dropper, Inserter, Selector, Truncater, Updater {
 
     /**
      * Push a statement to the database
@@ -104,6 +104,13 @@ class KueryTask(private val kuery : Kuery, private val connection : Connection) 
 
     override fun <E : Any> deleteAllRows(table : Table<E>) {
         push("DELETE FROM ${table.name}")
+    }
+    //endregion
+
+
+    //region Drop statement
+    override fun <E : Any> drop(table : Table<E>) {
+        push("DROP TABLE ${table.name}")
     }
     //endregion
 
@@ -186,6 +193,13 @@ class KueryTask(private val kuery : Kuery, private val connection : Connection) 
                  prop4 : KProperty1<E, R4>,
                  prop5 : KProperty1<E, R5>) : Select5<E, List<R1>, List<R2>, List<R3>, List<R4>, List<R5>> {
         return Select5Impl(table, listOf(prop1, prop2, prop3, prop4, prop5))
+    }
+    //endregion
+
+
+    //region Truncate statement
+    override fun <E : Any> truncate(table : Table<E>) {
+        push("TRUNCATE TABLE ${table.name}")
     }
     //endregion
 
