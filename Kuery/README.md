@@ -1,3 +1,5 @@
+# Kuery [![Version](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/com/sxtanna/db/Kuery/maven-metadata.xml.svg?style=for-the-badge)](http://repo1.maven.org/maven2/com/sxtanna/db/Kuery/) [![license](https://img.shields.io/badge/license-Apache%202.0-blue.svg?style=for-the-badge)](https://www.apache.org/licenses/LICENSE-2.0)
+
 ## How to use Kuery
 
 ### Gradle
