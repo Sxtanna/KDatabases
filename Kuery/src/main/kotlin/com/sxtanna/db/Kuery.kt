@@ -8,7 +8,7 @@ import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import org.intellij.lang.annotations.Language
 import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+import org.slf4j.LoggerFactory.getLogger
 import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.ResultSet
@@ -16,7 +16,7 @@ import java.sql.ResultSet
 /**
  * SQL Pool wrapper
  */
-class Kuery(private val config : KueryConfig, internal val logger : Logger = LoggerFactory.getLogger("Kuery-${config.pool.name}")) {
+class Kuery(private val config : KueryConfig, internal val logger : Logger = getLogger("Kuery-${config.pool.name}")) {
 
     private lateinit var pool : HikariDataSource
 
