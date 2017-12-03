@@ -32,7 +32,9 @@ class Kuery(private val config : KueryConfig, internal val logger : Logger = get
 
             jdbcUrl = "jdbc:mysql://${config.data.address}:${config.data.port}/${config.data.database}?useSSL=false"
 
-            poolName = config.pool.name
+            // oof
+            config.pool.name.takeIf { it.isNotBlank() }?.let { poolName = it }
+
             maximumPoolSize = config.pool.size
             idleTimeout = config.pool.idleTimeout
             connectionTimeout = config.pool.connTimeout
