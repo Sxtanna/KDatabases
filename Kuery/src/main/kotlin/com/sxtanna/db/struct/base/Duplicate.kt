@@ -32,7 +32,9 @@ sealed class Duplicate<in T : Table<*>> {
      *  * Table's [PrimaryKey]
      *  * All rows
      */
-    class Update<in T : Table<E>, E : Any>(private vararg val rows : KProperty1<E, *>) : Duplicate<T>() {
+    class Update<in T : Table<E>, E : Any>(private val rows : List<KProperty1<E, *>>) : Duplicate<T>() {
+        constructor(vararg rows : KProperty1<E, *>) : this(rows.toList())
+
 
         override fun invoke(table : T) : String {
             val rows = rows.takeIf { it.isNotEmpty() }?.map { it.name } // provided
@@ -47,7 +49,7 @@ sealed class Duplicate<in T : Table<*>> {
 
     private companion object {
 
-        const val ODKU = "ON DUPLICATE KEY UPDATE "
+        private const val ODKU = "ON DUPLICATE KEY UPDATE "
 
     }
 
