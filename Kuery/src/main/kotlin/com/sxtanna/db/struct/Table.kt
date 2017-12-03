@@ -36,6 +36,16 @@ class Table<T : Any> @PublishedApi internal constructor(val clazz : KClass<T>) :
      */
     fun getPrimaryKey() = fields.find { it.findAnnotation<PrimaryKey>() != null }
 
+    /**
+     * Get the rows of this table represents as properties
+     */
+    fun getAllRows() = fields
+
+    /**
+     * Get the names of the rows of this table
+     */
+    fun getAllRowNames() = columns.keys.toList()
+
 
     override fun equals(other : Any?) : Boolean {
         if (this === other) return true
