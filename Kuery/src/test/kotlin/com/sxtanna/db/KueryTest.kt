@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS
 import java.lang.System.getProperty
 import java.math.BigDecimal
+import java.sql.SQLException
 import java.util.*
 import java.util.UUID.randomUUID
 
@@ -39,7 +40,7 @@ class KueryTest {
     }
 
     @AfterAll
-    internal fun close() {
+    internal fun unload() {
         kuery.unload()
     }
 
@@ -49,7 +50,7 @@ class KueryTest {
      */
     @AfterEach
     fun delayAfter() {
-        Thread.sleep(500)
+        //Thread.sleep(500)
     }
     //endregion
 
@@ -59,29 +60,16 @@ class KueryTest {
      * Create
      */
     @Test
-    internal fun test1() {
+    internal fun test0() {
+        kuery(banks).create()
         kuery(users).create()
-    }
-
-    /**
-     * Delete
-     */
-    @Test
-    internal fun test2() {
-
-        val (all) = kuery(users) {
-            deleteAllRows()
-            select()
-        }
-
-        assertEquals(0, all.size) { "There are still rows in the database" }
     }
 
     /**
      * Insert
      */
     @Test
-    internal fun test3() {
+    internal fun test1() {
         val new = (0..9).map { User(randomUUID(), "Ranald", "Password") }
 
         val (all) = kuery(users) {
@@ -93,13 +81,31 @@ class KueryTest {
         val newList = new.sortedBy { it.uuid.toString() }
 
         assertEquals(allList, newList) { "The users in the database do not match the new ones" }
+
+        kuery(users).insert(User(randomUUID(), "First", "Second"))
+    }
+
+    /**
+     * Delete
+     */
+    @Test
+    internal fun test2() {
+
+        val (all) = kuery(users) {
+            delete().where(User::name) {
+                it equals "First"
+            }.execute()
+            select()
+        }
+
+        assertEquals(10, all.size) { "Failed to delete the row" }
     }
 
     /**
      * Select
      */
     @Test
-    internal fun test4() {
+    internal fun test3() {
 
         val (all) = kuery(users) {
             select()
@@ -112,7 +118,7 @@ class KueryTest {
      * Update
      */
     @Test
-    internal fun test5() {
+    internal fun test4() {
 
         kuery(users) {
 
@@ -139,7 +145,7 @@ class KueryTest {
      * Multiple tables
      */
     @Test
-    internal fun test6() {
+    internal fun test5() {
 
         kuery {
             create(banks)
@@ -168,6 +174,38 @@ class KueryTest {
 
         }
 
+    }
+
+    /**
+     * Truncate
+     */
+    @Test
+    internal fun test6() {
+        kuery {
+            truncate(banks)
+            val (res0) = select(banks)
+            assertEquals(0, res0.size) { "Data was not truncated from Banks" }
+
+            truncate(users)
+            val (res1) = select(users)
+            assertEquals(0, res1.size) { "Data was not truncated from Users" }
+        }
+    }
+
+    /**
+     * Drop
+     */
+    @Test
+    internal fun test7() {
+        kuery {
+            drop(banks)
+            drop(users)
+
+            assertThrows<SQLException> {
+                val (res0) = select(banks)
+                val (res1) = select(users)
+            }
+        }
     }
     //endregion
 
