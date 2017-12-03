@@ -39,6 +39,10 @@ interface Deleter {
     /**
      * Delete all rows from this table
      *  * Executed automatically
+     *  * Can be undone
+     *  * **Consider using [Truncater.truncate] instead**
+     *
+     * @see [Truncater.truncate]
      */
     fun <E : Any> deleteAllRows(table : Table<E>)
 
@@ -71,6 +75,7 @@ interface Deleter {
 
         /**
          * @see [Deleter.deleteAllRows]
+         * @see [Truncater.truncate]
          */
         fun deleteAllRows()
 
