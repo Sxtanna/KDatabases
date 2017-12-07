@@ -203,6 +203,9 @@ class KueryTest {
 
             assertThrows<SQLException> {
                 val (res0) = select(banks)
+            }
+
+            assertThrows<SQLException> {
                 val (res1) = select(users)
             }
         }
