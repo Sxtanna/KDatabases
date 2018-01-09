@@ -4,6 +4,7 @@ import com.sxtanna.db.ext.PrimaryKey
 import com.sxtanna.db.ext.Value
 import com.sxtanna.db.ext.value
 import com.sxtanna.db.ext.whileNext
+import com.sxtanna.db.struct.Database
 import com.sxtanna.db.struct.Resolver
 import com.sxtanna.db.struct.Table
 import com.sxtanna.db.struct.base.Duplicate
@@ -34,7 +35,7 @@ import kotlin.reflect.full.primaryConstructor
  *
  * [kotlin.reflect.KClass.properties]
  */
-class KueryTask(private val kuery : Kuery, private val connection : Connection) : Creator, Deleter, Dropper, Inserter, Selector, Truncater, Updater {
+class KueryTask(private val kuery : Kuery, private val connection : Connection) : DBCreator, DBDeleter, DBDropper, DBInserter, DBSelector, DBTruncater, DBUpdater, DBUser {
 
     /**
      * Push a statement to the database
@@ -69,6 +70,12 @@ class KueryTask(private val kuery : Kuery, private val connection : Connection) 
 
 
     //region Create statement
+    override fun create(database : Database, andTables : Boolean) {
+        push("CREATE DATABASE ${database.name}")
+
+        if (andTables) database.tables.forEach { create(it) }
+    }
+
     override fun <E : Any> create(table : Table<E>) {
         val columns = table.columns.entries.joinToString { "${it.key} ${it.value}" }
         push("CREATE TABLE IF NOT EXISTS ${table.name}($columns)")
@@ -108,7 +115,11 @@ class KueryTask(private val kuery : Kuery, private val connection : Connection) 
     //endregion
 
 
-    //region Drop statement
+    //region Drop statements
+    override fun drop(database : Database) {
+        push("DROP DATABASE ${database.name}")
+    }
+
     override fun <E : Any> drop(table : Table<E>) {
         push("DROP TABLE ${table.name}")
     }
@@ -153,6 +164,10 @@ class KueryTask(private val kuery : Kuery, private val connection : Connection) 
     //region Select statements
     override fun <E : Any> select(table : Table<E>) : Select1<E, List<E>> {
         return Select1Impl(table, emptyList())
+    }
+
+    override fun <E : Any, R1 : Any> selectOne(table : Table<E>, prop : KProperty1<E, R1>) : Select1<E, R1> {
+        return SelectOneImpl(table, prop)
     }
 
     override fun <E : Any, R1 : Any?>
@@ -256,9 +271,16 @@ class KueryTask(private val kuery : Kuery, private val connection : Connection) 
     //endregion
 
 
+    //region Use statement
+    override fun use(database : Database) {
+        push("USE ${database.name}")
+    }
+    //endregion
+
+
     //region Select implementations
-    internal inner abstract class SelectImpl<E : Any, R1 : Any?>(protected val table : Table<E>, target : List<KProperty1<E, *>>)
-        : Select1<E, List<R1>> {
+    internal inner abstract class SelectImpl<E : Any, R1 : Any>(protected val table : Table<E>, target : List<KProperty1<E, *>>)
+        : Select1<E, R1> {
 
         private val order = mutableListOf<Order>()
         private val where = mutableListOf<Where.Clause>()
@@ -271,8 +293,8 @@ class KueryTask(private val kuery : Kuery, private val connection : Connection) 
         protected lateinit var lastResult : ResultSet
 
 
-        override final fun component1() : List<R1> {
-            if (::lastResult.isInitialized) return first()
+        override fun execute() {
+            if (::lastResult.isInitialized) return // not going to pull results again
 
             val order = order.isNotEmpty().value(" ORDER BY ${order.joinToString()}")
             val where = where.isNotEmpty().value(" WHERE ${where.joinToString(" AND ")}")
@@ -298,7 +320,7 @@ class KueryTask(private val kuery : Kuery, private val connection : Connection) 
             if (result.isBeforeFirst.not()) {
                 result.close()
                 lastResult = result
-                return emptyList()
+                return
             }
 
 
@@ -328,30 +350,42 @@ class KueryTask(private val kuery : Kuery, private val connection : Connection) 
             }
 
             lastResult = result
-
-            // return first component
-            return first()
         }
 
+        override final fun component1() : R1 {
+            if (::lastResult.isInitialized.not()) execute() // maintain past behavior
+            return first() // return first component
+        }
 
-        override fun <R : Any> where(prop : KProperty1<E, R>, block : Where<E, R>.(KProperty1<E, R>) -> Unit) : Select1<E, List<R1>> = apply {
+        override fun <R : Any> where(prop : KProperty1<E, R>, block : Where<E, R>.(KProperty1<E, R>) -> Unit) : Select1<E, R1> = apply {
             where.addAll(Where<E, R>().apply { block(prop) }.clauses)
         }
 
-        override fun <R : Any> order(prop : KProperty1<E, R>, direction : Direction) : Select1<E, List<R1>> = apply {
+        override fun <R : Any> order(prop : KProperty1<E, R>, direction : Direction) : Select1<E, R1> = apply {
             order.add(if (direction == ASCEND) Ascend(prop.name) else Descend(prop.name))
         }
 
-        protected open fun first() : List<R1> {
-            return checkNotNull(results[0] as List<R1>) {
+        protected open fun first() : R1 {
+            if (results.isEmpty()) return emptyList<Any>() as R1 // gotta keep that quick return
+
+            return checkNotNull(results[0] as R1) {
                 table.fields[1].let { "Results for ${it.name} weren't ${it.returnType}" }
             }
         }
 
     }
 
+    internal inner class SelectOneImpl<E : Any, R1 : Any>(table : Table<E>, target : KProperty1<E, R1>)
+        : SelectImpl<E, R1>(table, listOf(target)) {
+
+        override fun first() : R1 {
+            return (super.first() as List<R1>)[0]
+        }
+
+    }
+
     internal open inner class Select1Impl<E : Any, R1 : Any?>(table : Table<E>, target : List<KProperty1<E, *>>)
-        : SelectImpl<E, R1>(table, target) {
+        : SelectImpl<E, List<R1>>(table, target) {
 
         override final fun first() : List<R1> {
             return if (target != "*") super.first() else { // try to create the entire object
@@ -372,7 +406,6 @@ class KueryTask(private val kuery : Kuery, private val connection : Connection) 
 
                 // the least amount of creatable objects (might not actually need this due to nullability)
                 val min = results.values.minBy { it.size }?.size ?: 0
-
 
                 val values = mutableMapOf<KParameter, Any?>()
 
