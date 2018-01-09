@@ -101,7 +101,7 @@ subprojects {
     }
 
     shadowJar {
-        archiveName = "${baseName}-${rootProject.version}.${extension}"
+        classifier = ""
     }
 
     dokka {
@@ -115,7 +115,11 @@ subprojects {
     }
 
     signing {
-        sign configurations.archives
+        required { gradle.taskGraph.hasTask('uploadArchives') }
+
+        sign shadowJar
+        sign sourcesJar
+        sign javadocJar
     }
 
     nexusStaging {
