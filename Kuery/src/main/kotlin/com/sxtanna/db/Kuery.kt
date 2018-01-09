@@ -3,6 +3,7 @@ package com.sxtanna.db
 import com.sxtanna.db.config.KueryConfig
 import com.sxtanna.db.struct.Table
 import com.sxtanna.db.struct.statement.Select1
+import com.sxtanna.db.type.DatabaseBridge
 import com.sxtanna.db.type.Executed
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
@@ -16,14 +17,11 @@ import java.sql.ResultSet
 /**
  * SQL Pool wrapper
  */
-class Kuery(private val config : KueryConfig, internal val logger : Logger = getLogger("Kuery-${config.pool.name}")) {
+class Kuery(private val config : KueryConfig, internal val logger : Logger = getLogger("Kuery-${config.pool.name}")) : DatabaseBridge<Connection> {
 
     private lateinit var pool : HikariDataSource
 
-    /**
-     * Create the pool from the given config
-     */
-    fun load() {
+    override fun load() {
         logger.debug("Kuery is loading")
         check(::pool.isInitialized.not()) { "Kuery is already loaded" }
 
@@ -57,10 +55,7 @@ class Kuery(private val config : KueryConfig, internal val logger : Logger = get
         pool = HikariDataSource(config)
     }
 
-    /**
-     * Unload the pool after it's been loaded
-     */
-    fun unload() {
+    override fun unload() {
         logger.debug("Kuery is unloading")
         check(::pool.isInitialized) { "Kuery is not loaded" }
 
@@ -68,16 +63,7 @@ class Kuery(private val config : KueryConfig, internal val logger : Logger = get
     }
 
 
-    /**
-     * Pull a connection from the pool
-     */
-    private fun connect() : Connection = pool.connection
-
-    /**
-     * Use a connection from the pool
-     *  * Closes automatically after code block
-     */
-    private fun <R> connect(block : (Connection) -> R) = connect().use(block)
+    override fun connect() : Connection = pool.connection
 
 
     /**
