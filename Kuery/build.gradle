@@ -10,6 +10,8 @@ ext {
 
 dependencies {
 
+    compile project(":Common")
+
     implementation "com.zaxxer:HikariCP:$versionHikariCP"
     implementation "org.mariadb.jdbc:mariadb-java-client:$versionMariaDBCJ"
 
