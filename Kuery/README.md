@@ -19,7 +19,6 @@ compile "com.sxtanna.db:Kuery:+"
 ## How it works
 
 ```kotlin
-
 data class User(@PrimaryKey val id : Long, val name : String, @Tiny @Unsigned val age : Int)
 
 val kuery = Kuery(config : KueryConfig)
@@ -40,9 +39,10 @@ kuery { // connection to database is opened here
     
     val (ids, ages) = select(table, User::id, User::age) // destructuring multi select call yields all results
     
-    val result = select(table, User::id, User::age) // using the actual resulting Select, you may invoke forEach
     
-    result.forEach { id : Long, age : Int -> // a Select forEach provides each result
+    // using the actual resulting Select, you may invoke forEach
+    
+    select(table, User::id, User::age).forEach { id : Long, age : Int -> // a Select forEach provides each result
         println("User with id $id is $age years old")    
     }
 
