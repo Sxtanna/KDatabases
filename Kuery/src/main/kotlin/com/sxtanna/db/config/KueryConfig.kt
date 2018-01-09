@@ -3,7 +3,7 @@ package com.sxtanna.db.config
 /**
  * Contains the various configuration options available
  */
-class KueryConfig(val data : OptionsData, val pool : OptionsPool, val user : OptionsUser) {
+data class KueryConfig(val data : OptionsData, val pool : OptionsPool, val user : OptionsUser) {
     internal constructor() : this(OptionsData(), OptionsPool(), OptionsUser())
 
 
