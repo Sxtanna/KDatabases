@@ -5,21 +5,21 @@ import com.sxtanna.db.struct.Table
 /**
  * An object that can truncate (delete all data) tables
  */
-interface Truncater {
+interface DBTruncater {
 
     /**
      * Truncate the data in this table
      */
-    fun <E : Any> truncate(table : Table<E>)
+    fun <T : Any> truncate(table : Table<T>)
 
 
     /**
      * An object that can truncate (delete all data) from its table
      */
-    interface TableTruncater<E : Any> {
+    interface TableTruncater<T : Any> {
 
         /**
-         * @see [Truncater.truncate]
+         * @see [DBTruncater.truncate]
          */
         fun truncate()
 

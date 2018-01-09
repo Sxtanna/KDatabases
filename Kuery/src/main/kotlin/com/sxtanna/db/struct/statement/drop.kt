@@ -1,25 +1,28 @@
 package com.sxtanna.db.struct.statement
 
+import com.sxtanna.db.struct.Database
 import com.sxtanna.db.struct.Table
 
 /**
  * An object that can drop (delete) a table
  */
-interface Dropper {
+interface DBDropper {
+
+    fun drop(database : Database)
 
     /**
      * Drop this table
      */
-    fun <E : Any> drop(table : Table<E>)
+    fun <T : Any> drop(table : Table<T>)
 
 
     /**
      * An object that can drop (delete) its table
      */
-    interface TableDropper<E : Any> {
+    interface TableDropper<T : Any> {
 
         /**
-         * @see [Dropper.drop]
+         * @see [DBDropper.drop]
          */
         fun drop()
 

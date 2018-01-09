@@ -4,17 +4,18 @@ import com.sxtanna.db.ext.Value
 import com.sxtanna.db.struct.Table
 import com.sxtanna.db.type.Executed
 import com.sxtanna.db.type.Targeted
+import kotlin.internal.OnlyInputTypes
 import kotlin.reflect.KProperty1
 
 /**
  * Describes an SQL "UPDATE" statement
  */
-interface Update<E : Any> : Executed, Targeted<Update<E>, E> {
+interface Update<T : Any> : Executed, Targeted<Update<T>, T> {
 
     /**
      * Set this column to this value
      */
-    fun <R : Any?> set(column : KProperty1<E, R>, value : R) : Update<E>
+    fun <@OnlyInputTypes R : Any?> set(column : KProperty1<T, R>, value : R) : Update<T>
 
 }
 
@@ -22,7 +23,7 @@ interface Update<E : Any> : Executed, Targeted<Update<E>, E> {
 /**
  * An object that can update rows and columns in a table
  */
-interface Updater {
+interface DBUpdater {
 
     /**
      * Create an update statement for this table
@@ -30,13 +31,13 @@ interface Updater {
      *  * or
      *  * Returning it from a Kuery#invoke block
      */
-    fun <E : Any> update(table : Table<E>) : Update<E>
+    fun <T : Any> update(table : Table<T>) : Update<T>
 
     /**
      * Update the supplied rows in this table
      *  * Executed automatically
      */
-    fun <E : Any> update(table : Table<E>, vararg rows : E) {
+    fun <T : Any> update(table : Table<T>, vararg rows : T) {
         update(table, rows.toList())
     }
 
@@ -44,7 +45,7 @@ interface Updater {
      * Update the supplied rows in this table
      *  * Executed automatically
      */
-    fun <E : Any> update(table : Table<E>, rows : Collection<E>)
+    fun <T : Any> update(table : Table<T>, rows : Collection<T>)
 
     /**
      * Create an update statement that updates the supplied columns in this table
@@ -52,7 +53,7 @@ interface Updater {
      *  * or
      *  * Returning it from a Kuery#invoke block
      */
-    fun <E : Any> update(table : Table<E>, vararg values : Value<E, *>) : Update<E> {
+    fun <T : Any> update(table : Table<T>, vararg values : Value<T, *>) : Update<T> {
         val update = update(table)
         values.forEach { update.set(it.prop, it.value) }
 
@@ -64,60 +65,60 @@ interface Updater {
      *  * Executed automatically
      *  * Does not work on tables with primary keys
      */
-    fun <E : Any> updateAllRows(table : Table<E>, row : E)
+    fun <T : Any> updateAllRows(table : Table<T>, row : T)
 
     /**
      * Update all rows in this table to these values
      *  * Executed automatically
      *  * Cannot set the value of a primary key
      */
-    fun <E : Any> updateAllRows(table : Table<E>, vararg values : Value<E, *>)
+    fun <T : Any> updateAllRows(table : Table<T>, vararg values : Value<T, *>)
 
 
     /**
      * An object that can update rows and columns in its table
      */
-    interface TableUpdater<E : Any> {
+    interface TableUpdater<T : Any> {
 
         /**
-         * @see [Updater.update]
+         * @see [DBUpdater.update]
          */
-        fun update() : Update<E>
+        fun update() : Update<T>
 
         /**
-         * Updater.update(table : Table&lt;E>, vararg rows : E)
+         * Updater.update(table : Table&lt;T>, vararg rows : T)
          *
          * @sample [Cannot_link_to_specific_method][update]
          */
-        fun update(vararg rows : E) {
+        fun update(vararg rows : T) {
             update(rows.toList())
         }
 
         /**
-         * Updater.update(table : Table<E>, rows : Collection<E>)
+         * Updater.update(table : Table<T>, rows : Collection<T>)
          *
          * @sample [Cannot_link_to_specific_method][update]
          */
-        fun update(rows : Collection<E>)
+        fun update(rows : Collection<T>)
 
         /**
-         * Updater.update(table : Table&lt;E>, vararg values : Value&lt;E, *>)
+         * Updater.update(table : Table&lt;T>, vararg values : Value&lt;T, *>)
          *
          * @sample [Cannot_link_to_specific_method][update]
          */
-        fun update(vararg values : Value<E, *>) : Update<E>
+        fun update(vararg values : Value<T, *>) : Update<T>
 
         /**
-         * @see [Updater.updateAllRows]
+         * @see [DBUpdater.updateAllRows]
          */
-        fun updateAllRows(row : E)
+        fun updateAllRows(row : T)
 
         /**
-         * Updater.updateAllRows(table : Table&lt;E>, vararg values : Value&lt;E, *>)
+         * Updater.updateAllRows(table : Table&lt;T>, vararg values : Value&lt;T, *>)
          *
          * @sample [Cannot_link_to_specific_method][updateAllRows]
          */
-        fun updateAllRows(vararg values : Value<E, *>)
+        fun updateAllRows(vararg values : Value<T, *>)
 
     }
 

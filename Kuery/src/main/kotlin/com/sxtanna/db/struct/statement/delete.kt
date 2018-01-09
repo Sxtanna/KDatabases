@@ -7,12 +7,12 @@ import com.sxtanna.db.type.Targeted
 /**
  * Describes an SQL "DELETE" statement
  */
-interface Delete<E : Any> : Executed, Targeted<Delete<E>, E>
+interface Delete<T : Any> : Executed, Targeted<Delete<T>, T>
 
 /**
  * An object that can delete rows from a table
  */
-interface Deleter {
+interface DBDeleter {
 
     /**
      * Create a Delete statement for this table
@@ -20,13 +20,13 @@ interface Deleter {
      *  * or
      *  * Returning it from a Kuery#invoke block
      */
-    fun <E : Any> delete(table : Table<E>) : Delete<E>
+    fun <T : Any> delete(table : Table<T>) : Delete<T>
 
     /**
      * Delete the supplied rows from this table
      *  * Executed automatically
      */
-    fun <E : Any> delete(table : Table<E>, vararg rows : E) {
+    fun <T : Any> delete(table : Table<T>, vararg rows : T) {
         delete(table, rows.toList())
     }
 
@@ -34,48 +34,48 @@ interface Deleter {
      * Delete the supplied rows from this table
      *  * Executed automatically
      */
-    fun <E : Any> delete(table : Table<E>, rows : Collection<E>)
+    fun <T : Any> delete(table : Table<T>, rows : Collection<T>)
 
     /**
      * Delete all rows from this table
      *  * Executed automatically
      *  * Can be undone
-     *  * **Consider using [Truncater.truncate] instead**
+     *  * **Consider using [DBTruncater.truncate] instead**
      *
-     * @see [Truncater.truncate]
+     * @see [DBTruncater.truncate]
      */
-    fun <E : Any> deleteAllRows(table : Table<E>)
+    fun <T : Any> deleteAllRows(table : Table<T>)
 
 
     /**
      * An object that can delete rows from its table
      */
-    interface TableDeleter<E : Any> {
+    interface TableDeleter<T : Any> {
 
         /**
-         * @see [Deleter.delete]
+         * @see [DBDeleter.delete]
          */
-        fun delete() : Delete<E>
+        fun delete() : Delete<T>
 
         /**
-         * Deleter.delete(table : Table&lt;E>, varargs rows : E)
+         * Deleter.delete(table : Table&lt;T>, varargs rows : T)
          *
          * @sample [Cannot_link_to_specific_method][delete]
          */
-        fun delete(vararg rows : E) {
+        fun delete(vararg rows : T) {
             delete(rows.toList())
         }
 
         /**
-         * Deleter.delete(table : Table&lt;E>, rows : Collection&lt;E>)
+         * Deleter.delete(table : Table&lt;T>, rows : Collection&lt;T>)
          *
          * @sample [Cannot_link_to_specific_method][delete]
          */
-        fun delete(rows : Collection<E>)
+        fun delete(rows : Collection<T>)
 
         /**
-         * @see [Deleter.deleteAllRows]
-         * @see [Truncater.truncate]
+         * @see [DBDeleter.deleteAllRows]
+         * @see [DBTruncater.truncate]
          */
         fun deleteAllRows()
 
