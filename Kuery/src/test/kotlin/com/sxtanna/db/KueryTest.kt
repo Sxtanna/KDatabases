@@ -4,6 +4,8 @@ import com.sxtanna.db.config.KueryConfig
 import com.sxtanna.db.config.KueryConfig.*
 import com.sxtanna.db.ext.PrimaryKey
 import com.sxtanna.db.ext.Size
+import com.sxtanna.db.ext.forEach
+import com.sxtanna.db.struct.Database
 import com.sxtanna.db.struct.Table
 import com.sxtanna.db.struct.base.Duplicate.Ignore
 import org.junit.jupiter.api.*
@@ -20,17 +22,26 @@ import java.util.UUID.randomUUID
  * @sample [useConnection]
  */
 @TestInstance(PER_CLASS)
+@Suppress("ConstantConditionIf") // ignore this, I just hate the warning...
 class KueryTest {
 
-    data class Bank(@PrimaryKey val id : Int, @Size(10, 2) val balance : BigDecimal)
+    data class Bank(@PrimaryKey val uuid : UUID, @Size(10, 2) val balance : BigDecimal)
     data class User(@PrimaryKey val uuid : UUID, val name : String, val auth : String?)
+
+
+    object TestingDB : Database() {
+
+        override val name = "kuerytesting"
+
+        val BANKS = table<Bank>()
+        val USERS = table<User>()
+
+    }
+
 
     private val config = KueryConfig(OptionsData(address, port, database), OptionsPool(), OptionsUser(userName, passWord))
 
     private val kuery = Kuery(config)
-
-    private val banks = Table.of<Bank>()
-    private val users = Table.of<User>()
 
 
     //region Init/DeInit
@@ -61,8 +72,18 @@ class KueryTest {
      */
     @Test
     internal fun test0() {
-        kuery(banks).create()
-        kuery(users).create()
+
+        kuery {
+
+            if (USE_OLD) create(TestingDB, true)
+            else {
+                use(TestingDB)
+
+                create(TestingDB.BANKS)
+                create(TestingDB.USERS)
+            }
+        }
+
     }
 
     /**
@@ -72,7 +93,7 @@ class KueryTest {
     internal fun test1() {
         val new = (0..9).map { User(randomUUID(), "Ranald", "Password") }
 
-        val (all) = kuery(users) {
+        val (all) = kuery(TestingDB.USERS) {
             insert(Ignore, new)
             select()
         }
@@ -82,7 +103,7 @@ class KueryTest {
 
         assertEquals(allList, newList) { "The users in the database do not match the new ones" }
 
-        kuery(users).insert(User(randomUUID(), "First", "Second"))
+        kuery(TestingDB.USERS).insert(User(randomUUID(), "First", "Second"))
     }
 
     /**
@@ -91,10 +112,11 @@ class KueryTest {
     @Test
     internal fun test2() {
 
-        val (all) = kuery(users) {
-            delete().where(User::name) {
-                it equals "First"
-            }.execute()
+        val (all) = kuery(TestingDB.USERS) {
+
+            if (USE_OLD.not()) task.use(TestingDB)
+
+            delete().where(User::name) { it equals "First" }.execute()
             select()
         }
 
@@ -107,11 +129,11 @@ class KueryTest {
     @Test
     internal fun test3() {
 
-        val (all) = kuery(users) {
+        val (all) = kuery(TestingDB.USERS) {
             select()
         }
 
-        assertEquals(10, all.size, "All users weren't inserted")
+        assertEquals(10, all.size, "All TestingDB.USERS weren't inserted")
     }
 
     /**
@@ -120,7 +142,7 @@ class KueryTest {
     @Test
     internal fun test4() {
 
-        kuery(users) {
+        kuery(TestingDB.USERS) {
 
             val uuid = randomUUID()
 
@@ -148,11 +170,11 @@ class KueryTest {
     internal fun test5() {
 
         kuery {
-            create(banks)
-            create(users)
+            create(TestingDB.BANKS)
+            create(TestingDB.USERS)
 
-            val (banks) = on(banks) {
-                insert(Ignore, Bank(21, BigDecimal(1000)))
+            val (banks) = on(TestingDB.BANKS) {
+                insert(Ignore, Bank(randomUUID(), BigDecimal(1000)))
 
                 select().where(Bank::balance) {
                     it moreThan BigDecimal(500)
@@ -164,7 +186,7 @@ class KueryTest {
             }
 
 
-            on(users) {
+            on(TestingDB.USERS) {
                 insert(Ignore, User(randomUUID(), "Sxtanna", "Password"))
 
                 delete().where(User::name) {
@@ -182,12 +204,12 @@ class KueryTest {
     @Test
     internal fun test6() {
         kuery {
-            truncate(banks)
-            val (res0) = select(banks)
+            truncate(TestingDB.BANKS)
+            val (res0) = select(TestingDB.BANKS)
             assertEquals(0, res0.size) { "Data was not truncated from Banks" }
 
-            truncate(users)
-            val (res1) = select(users)
+            truncate(TestingDB.USERS)
+            val (res1) = select(TestingDB.USERS)
             assertEquals(0, res1.size) { "Data was not truncated from Users" }
         }
     }
@@ -198,19 +220,78 @@ class KueryTest {
     @Test
     internal fun test7() {
         kuery {
-            drop(banks)
-            drop(users)
+            drop(TestingDB.BANKS)
+            drop(TestingDB.USERS)
 
             assertThrows<SQLException> {
-                val (res0) = select(banks)
+                val (res0) = select(TestingDB.BANKS)
             }
 
             assertThrows<SQLException> {
-                val (res1) = select(users)
+                val (res1) = select(TestingDB.USERS)
             }
         }
     }
     //endregion
+
+
+    data class Users(@PrimaryKey @Size(10) val id : String, @Size(50) val name : String, val cityId : Int?)
+
+    data class Cities(@PrimaryKey val id : Int, @Size(50) val name : String)
+
+    @Test
+    internal fun jetbrainsExposed() {
+
+        val users = Table.of<Users>()
+        val cities = Table.of<Cities>()
+
+        kuery {
+
+            if (USE_OLD.not()) use(TestingDB)
+
+            create(users)
+            create(cities)
+
+            insert(cities, Cities(0, "St. Petersburg"))
+            val (saintPetersburgId) = selectOne(cities, Cities::id).where(Cities::name) {
+                it equals "St. Petersburg"
+            }
+
+            insert(cities, Cities(1, "Munich"))
+            val (munichId) = selectOne(cities, Cities::id).where(Cities::name) {
+                it equals "Munich"
+            }
+
+
+            insert(users, Users("andrey", "Andrey", saintPetersburgId))
+
+            insert(users, Users("sergey", "Sergey", munichId))
+
+            insert(users, Users("eugene", "Eugene", munichId))
+
+            insert(users, Users("alex", "Alex", null))
+
+            insert(users, Users("smth", "Something", null))
+
+
+            update(users)
+                  .where(Users::id) { it equals "alex" }
+                  .set(Users::name, "Alexey")
+
+
+            delete(users).where(Users::name) { it endsWith "thing" }
+
+            select(cities).forEach {
+                println("${it.id}: ${it.name}")
+            }
+
+
+            // no joins
+
+            drop(users)
+            drop(cities)
+        }
+    }
 
 
     /**
@@ -220,9 +301,10 @@ class KueryTest {
 
         kuery() // connection opened here, closed via timeout
 
-        kuery { // connection opened here
+        kuery {
+            // connection opened here
 
-            on(users) {
+            on(TestingDB.USERS) {
 
             }
 
@@ -236,12 +318,14 @@ class KueryTest {
      */
     private companion object {
 
-        val userName = checkNotNull(getProperty("kuery.user")) // -Dkuery.user
-        val passWord = checkNotNull(getProperty("kuery.pass")) // -Dkuery.pass
+        private val USE_OLD = false // true points to a pre selected database
 
-        val address  = checkNotNull(getProperty("kuery.address"))                // -Dkuery.address
-        val port     = checkNotNull(getProperty("kuery.port", "3306")).toShort() // -Dkuery.port
-        val database = checkNotNull(getProperty("kuery.db"))                     // -Dkuery.db
+        val userName = checkNotNull(getProperty("kuery${if (USE_OLD) ".old" else ""}.user")) // -Dkuery.user
+        val passWord = checkNotNull(getProperty("kuery${if (USE_OLD) ".old" else ""}.pass")) // -Dkuery.pass
+
+        val address  = checkNotNull(getProperty("kuery${if (USE_OLD) ".old" else ""}.address"))                // -Dkuery.address
+        val port     = checkNotNull(getProperty("kuery${if (USE_OLD) ".old" else ""}.port", "3306")).toShort() // -Dkuery.port
+        val database = checkNotNull(getProperty("kuery${if (USE_OLD) ".old" else ""}.db", ""))                 // -Dkuery.db
 
     }
 
