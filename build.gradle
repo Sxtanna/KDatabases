@@ -8,7 +8,7 @@ buildscript {
         versionJUnit = '5.1.0-M1'
 
         versionShadow = '2.0.1'
-        versionKotlin = '1.2.0'
+        versionKotlin = '1.2.21'
 
         versionNexusStaging = '0.5.1'
     }
