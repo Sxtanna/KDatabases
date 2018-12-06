@@ -19,6 +19,9 @@ interface Select1<T : Any, R1 : Any> : Executed {
     operator fun component1() : R1
 
 
+    fun limit(count: Long) : Select1<T, R1>
+
+
     /**
      * Define the "ORDER BY" clauses for the returned results
      */
@@ -53,6 +56,8 @@ interface Select2<T : Any, R1 : Any, R2 : Any> : Select1<T, R1> {
     operator fun component2() : R2
 
 
+    override fun limit(count: Long) : Select2<T, R1, R2>
+
     override fun <R : Any> order(prop : KProperty1<T, R>, direction : Direction) : Select2<T, R1, R2>
 
     override fun <R : Any> where(prop : KProperty1<T, R>, block : Where<T, R>.(KProperty1<T, R>) -> Unit) : Select2<T, R1, R2>
@@ -69,6 +74,8 @@ interface Select3<T : Any, R1 : Any, R2 : Any, R3 : Any> : Select2<T, R1, R2> {
      */
     operator fun component3() : R3
 
+
+    override fun limit(count: Long) : Select3<T, R1, R2, R3>
 
     override fun <R : Any> order(prop : KProperty1<T, R>, direction : Direction) : Select3<T, R1, R2, R3>
 
@@ -87,6 +94,8 @@ interface Select4<T : Any, R1 : Any, R2 : Any, R3 : Any, R4 : Any> : Select3<T, 
     operator fun component4() : R4
 
 
+    override fun limit(count: Long) : Select4<T, R1, R2, R3, R4>
+
     override fun <R : Any> order(prop : KProperty1<T, R>, direction : Direction) : Select4<T, R1, R2, R3, R4>
 
     override fun <R : Any> where(prop : KProperty1<T, R>, block : Where<T, R>.(KProperty1<T, R>) -> Unit) : Select4<T, R1, R2, R3, R4>
@@ -103,6 +112,8 @@ interface Select5<T : Any, R1 : Any, R2 : Any, R3 : Any, R4 : Any, R5 : Any> : S
      */
     operator fun component5() : R5
 
+
+    override fun limit(count: Long) : Select5<T, R1, R2, R3, R4, R5>
 
     override fun <R : Any> order(prop : KProperty1<T, R>, direction : Direction) : Select5<T, R1, R2, R3, R4, R5>
 

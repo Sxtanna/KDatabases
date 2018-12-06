@@ -1,8 +1,10 @@
 package com.sxtanna.db.ext
 
+import com.sxtanna.db.struct.Resolver
 import com.sxtanna.db.struct.SqlType.Attribute
 import com.sxtanna.db.struct.SqlType.Attribute.*
 import com.sxtanna.db.struct.statement.*
+import java.sql.PreparedStatement
 import java.sql.ResultSet
 import kotlin.internal.OnlyInputTypes
 import kotlin.reflect.KProperty1
@@ -104,3 +106,8 @@ fun <R1 : Any, R2 : Any, R3 : Any, R4 : Any, R5 : Any> Select5<*, List<R1>, List
     r1.forEachIndexed { index, it -> block(it, r2[index], r3[index], r4[index], r5[index]) }
 }
 //endregion
+
+
+operator fun PreparedStatement.set(index : Int, any : Any?) {
+    setObject(index, Resolver.SqlD[any])
+}

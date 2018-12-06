@@ -28,7 +28,7 @@ class Kuery(private val config : KueryConfig, internal val logger : Logger = get
         val config = HikariConfig().apply {
             driverClassName = "org.mariadb.jdbc.Driver"
 
-            jdbcUrl = "jdbc:mysql://${config.data.address}:${config.data.port}/${config.data.database}?useSSL=false"
+            jdbcUrl = "jdbc:mariadb://${config.data.address}:${config.data.port}/${config.data.database}?useSSL=false"
 
             // oof
             config.pool.name.takeIf { it.isNotBlank() }?.let { poolName = it }

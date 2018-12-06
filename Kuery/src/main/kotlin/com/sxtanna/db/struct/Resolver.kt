@@ -61,7 +61,7 @@ object Resolver {
 
             resolve<Enum<*>> {
                 val value = getString(it.name)
-                checkNotNull((it.returnType.jvmErasure as Enum<*>).javaClass.enumConstants.find { it.name == value })
+                checkNotNull(it.returnType.jvmErasure.java.enumConstants.filterIsInstance<Enum<*>>().find { it.name == value })
             }
 
             resolve<String> {
@@ -115,6 +115,39 @@ object Resolver {
          */
         inline fun <reified T : Any> resolve(noinline block : ResultSet.(KProperty1<*, T>) -> T) {
             adapters[T::class] = (block as ResultSet.(KProperty1<*, *>) -> Any)
+        }
+
+    }
+
+    /**
+     * Defines how to resolve objects to their database information
+     */
+    object SqlD {
+
+        @PublishedApi
+        internal val adapters = mutableMapOf<KClass<*>, (Any?) -> Any?>()
+
+
+        init {
+            resolve<UUID> {
+                it?.toString()
+            }
+
+            resolve<Enum<*>> {
+                it?.name
+            }
+        }
+
+
+        internal operator fun <T : Any> get(data: T?): Any? {
+
+            fun adapterOf(data: T) = adapters[data::class] ?: adapters[if (data::class.isSubclassOf(Enum::class)) Enum::class else Any::class]
+
+            return data?.let { adapterOf(it)?.invoke(it) } ?: data
+        }
+
+        inline fun <reified T : Any> resolve(noinline block: (T?) -> Any?) {
+            adapters[T::class] = (block as (Any?) -> Any?)
         }
 
     }

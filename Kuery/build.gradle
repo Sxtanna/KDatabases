@@ -1,5 +1,5 @@
 group 'com.sxtanna.db'
-version '1.4'
+version '1.5.3'
 
 ext {
     versionHikariCP = '2.7.4'
@@ -10,7 +10,7 @@ ext {
 
 dependencies {
 
-    compile project(":Common")
+    implementation project(":Common")
 
     implementation "com.zaxxer:HikariCP:$versionHikariCP"
     implementation "org.mariadb.jdbc:mariadb-java-client:$versionMariaDBCJ"
@@ -62,7 +62,6 @@ uploadArchives {
                 }
 
             }
-
         }
     }
 }
