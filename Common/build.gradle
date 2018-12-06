@@ -1,3 +1,50 @@
 group 'com.sxtanna.db'
 version '1.0'
 
+uploadArchives {
+    dependsOn = [clean, signJavadocJar, signSourcesJar, signShadowJar]
+
+    repositories {
+        mavenDeployer {
+
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+
+            pom.project {
+                name project.name
+                description "KDatabases Common Project"
+                url "https://github.com/Sxtanna/KDatabases"
+
+                scm {
+                    connection 'scm:git:git://github.com/Sxtanna/KDatabases.git'
+                    developerConnection 'scm:git:git://github.com/Sxtanna/KDatabases.git'
+                    url 'https://github.com/Sxtanna/KDatabases.git'
+                }
+
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+
+                developers {
+                    developer {
+                        name 'Sxtanna'
+                        email 'me@sxtanna.com'
+                    }
+                }
+
+            }
+
+        }
+    }
+}
