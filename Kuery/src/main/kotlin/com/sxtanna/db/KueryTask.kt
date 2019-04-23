@@ -67,14 +67,14 @@ class KueryTask(private val kuery: Kuery, private val connection: Connection) : 
 
     //region Create statement
     override fun create(database: Database, andTables: Boolean) {
-        push("CREATE DATABASE ${database.name}")
+        push("CREATE DATABASE `${database.name}`")
 
         if (andTables) database.tables.forEach { create(it) }
     }
 
     override fun <E : Any> create(table: Table<E>) {
-        val columns = table.columns.entries.joinToString { "${it.key} ${it.value}" }
-        push("CREATE TABLE IF NOT EXISTS ${table.name}($columns)")
+        val columns = table.columns.entries.joinToString { "`${it.key}` ${it.value}" }
+        push("CREATE TABLE IF NOT EXISTS `${table.name}` ($columns)")
     }
     //endregion
 
@@ -87,7 +87,7 @@ class KueryTask(private val kuery: Kuery, private val connection: Connection) : 
     override fun <E : Any> delete(table: Table<E>, rows: Collection<E>) {
         if (rows.isEmpty()) return
 
-        val statement = "DELETE FROM ${table.name} WHERE ${table.fields.joinToString(" AND ") { "${it.name}=?" }}"
+        val statement = "DELETE FROM `${table.name}` WHERE ${table.fields.joinToString(" AND ") { "`${it.name}`=?" }}"
         kuery.logger.debug("Pushing statement `$statement`")
 
         val state = connection.prepareStatement(statement).apply {
@@ -106,18 +106,18 @@ class KueryTask(private val kuery: Kuery, private val connection: Connection) : 
     }
 
     override fun <E : Any> deleteAllRows(table: Table<E>) {
-        push("DELETE FROM ${table.name}")
+        push("DELETE FROM `${table.name}`")
     }
     //endregion
 
 
     //region Drop statements
     override fun drop(database: Database) {
-        push("DROP DATABASE ${database.name}")
+        push("DROP DATABASE `${database.name}`")
     }
 
     override fun <E : Any> drop(table: Table<E>) {
-        push("DROP TABLE ${table.name}")
+        push("DROP TABLE `${table.name}`")
     }
     //endregion
 
@@ -129,7 +129,7 @@ class KueryTask(private val kuery: Kuery, private val connection: Connection) : 
         val columns = table.columns.keys
         val values = "(${Array(columns.size) { "?" }.joinToString()})"
 
-        push("INSERT INTO ${table.name} (${columns.joinToString()}) VALUES ${(0 until rows.size).joinToString { values }}") {
+        push("INSERT INTO `${table.name}` (${columns.joinToString()}) VALUES ${(0 until rows.size).joinToString { values }}") {
 
             var index = 1
             rows.forEach { e ->
@@ -145,7 +145,7 @@ class KueryTask(private val kuery: Kuery, private val connection: Connection) : 
         val columns = table.columns.keys
         val values = "(${Array(columns.size) { "?" }.joinToString()})"
 
-        push("INSERT INTO ${table.name} (${columns.joinToString()}) VALUES ${(0 until rows.size).joinToString { values }} ${duplicate(table)}") {
+        push("INSERT INTO `${table.name}` (${columns.joinToString()}) VALUES ${(0 until rows.size).joinToString { values }} ${duplicate(table)}") {
 
             var index = 1
             rows.forEach { e ->
@@ -224,7 +224,7 @@ class KueryTask(private val kuery: Kuery, private val connection: Connection) : 
         val key = table.getPrimaryKey()
                 ?: return kuery.logger.error("Cannot update entire rows in a table without a primary key")
 
-        val statement = "UPDATE ${table.name} SET ${table.fields.joinToString { "${it.name}=?" }} WHERE ${key.name}=?"
+        val statement = "UPDATE `${table.name}` SET ${table.fields.joinToString { "`${it.name}`=?" }} WHERE `${key.name}`=?"
         kuery.logger.debug("Pushing statement `$statement`")
 
         connection.prepareStatement(statement).apply {
@@ -245,7 +245,7 @@ class KueryTask(private val kuery: Kuery, private val connection: Connection) : 
     override fun <E : Any> updateAllRows(table: Table<E>, row: E) {
         if (table.getPrimaryKey() != null) return kuery.logger.error("Cannot update all rows to a single row of a table with a primary key")
 
-        push("UPDATE ${table.name} SET ${table.fields.joinToString { "${it.name}=?" }}") {
+        push("UPDATE `${table.name}` SET ${table.fields.joinToString { "`${it.name}`=?" }}") {
 
             var index = 1
             table.fields.map { it.get(row) }.forEach { this[index++] = it }
@@ -258,7 +258,7 @@ class KueryTask(private val kuery: Kuery, private val connection: Connection) : 
             return kuery.logger.error("Cannot update all rows in a table with a primary key to the same value")
         }
 
-        push("UPDATE ${table.name} SET ${values.joinToString { "${it.prop.name}=?" }}") {
+        push("UPDATE `${table.name}` SET ${values.joinToString { "`${it.prop.name}`=?" }}") {
 
             var index = 1
             values.forEach { this[index++] = it.value }
@@ -270,7 +270,7 @@ class KueryTask(private val kuery: Kuery, private val connection: Connection) : 
 
     //region Use statement
     override fun use(database: Database) {
-        push("USE ${database.name}")
+        push("USE `${database.name}`")
     }
     //endregion
 
@@ -285,7 +285,7 @@ class KueryTask(private val kuery: Kuery, private val connection: Connection) : 
 
         internal val results = mutableMapOf<Int, MutableList<Any?>>()
 
-        protected val target = if (target.isEmpty()) "*" else target.joinToString { it.name }
+        protected val target = if (target.isEmpty()) "*" else target.joinToString { "`${it.name}`" }
 
 
         protected lateinit var lastResult: ResultSet
@@ -299,7 +299,7 @@ class KueryTask(private val kuery: Kuery, private val connection: Connection) : 
             val limit = if (limit < 1) "" else " LIMIT $limit"
 
             // pull results from database
-            val result = pull("SELECT $target FROM ${table.name}$where$order$limit") {
+            val result = pull("SELECT $target FROM `${table.name}`$where$order$limit") {
 
                 var offset = 0
                 this@SelectImpl.where.forEachIndexed { index, it ->
@@ -551,7 +551,7 @@ class KueryTask(private val kuery: Kuery, private val connection: Connection) : 
                 return kuery.logger.error("Attempting to run delete with no clauses, this will delete all rows, please use KueryTask#deleteAllRows")
             }
 
-            push("DELETE FROM ${table.name} WHERE ${where.joinToString(" AND ")}") {
+            push("DELETE FROM `${table.name}` WHERE ${where.joinToString(" AND ")}") {
 
                 var offset = 0
                 where.forEachIndexed { index, it ->
@@ -595,7 +595,7 @@ class KueryTask(private val kuery: Kuery, private val connection: Connection) : 
                 return kuery.logger.error("Attempting to run update with no clauses, this will update every row, please use KueryTask#updateAllRows")
             }
 
-            push("UPDATE ${table.name} SET ${value.joinToString { "${it.prop.name}=?" }} WHERE ${where.joinToString(" AND ")}") {
+            push("UPDATE `${table.name}` SET ${value.joinToString { "`${it.prop.name}`=?" }} WHERE ${where.joinToString(" AND ")}") {
 
                 var index = 1
                 value.forEach { this[index++] = it.value }

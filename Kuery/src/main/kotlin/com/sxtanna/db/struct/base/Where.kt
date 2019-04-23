@@ -176,14 +176,14 @@ class Where<E : Any, R : Any?> {
 
         internal class Equal(override var not : Boolean, override val data : Any?, override val column : String) : Clause() {
 
-            override fun toString() = "$column${not.value("!")}=?"
+            override fun toString() = "`$column`${not.value("!")}=?"
 
         }
 
 
         internal class Between(override var not : Boolean, override val data : Any, private val other : Any, override val column : String) : Clause() {
 
-            override fun toString() = "$column ${not.value("NOT ")}BETWEEN ? AND ?"
+            override fun toString() = "`$column` ${not.value("NOT ")}BETWEEN ? AND ?"
 
         }
 
@@ -193,7 +193,7 @@ class Where<E : Any, R : Any?> {
             override val data : Any = pos.toString().replace("?", data.toString())
 
 
-            override fun toString() = "$column ${not.value("NOT ")}LIKE ?"
+            override fun toString() = "`$column` ${not.value("NOT ")}LIKE ?"
 
         }
 
@@ -203,7 +203,7 @@ class Where<E : Any, R : Any?> {
             override final var not = false
 
 
-            override fun toString() = "$column $symbol${orEqual.value("=")} ?"
+            override fun toString() = "`$column` $symbol${orEqual.value("=")} ?"
 
         }
 
