@@ -8,17 +8,17 @@ import kotlin.reflect.KClass
  * Defines the supported SQL Types of this DSL
  *  * These descriptions are 100% copy-pasted from my best friend "HeidiSQL", don't @ me if they are wrong, make an issue pls
  */
-sealed class SqlType(name : String? = null) : Named {
+sealed class SqlType(name: String? = null) : Named {
 
     override val name by lazy { requireNotNull(name ?: this::class.simpleName?.substring(3)?.toUpperCase()) }
 
 
-    operator fun get(vararg attributes : Attribute<*>?) : Cache = Cache(attributes.filterNotNull().toMutableList())
+    operator fun get(vararg attributes: Attribute<*>?): Cache = Cache(attributes.filterNotNull().toMutableList())
 
 
-    override final fun toString() = "Type=$name"
+    final override fun toString() = "Type=$name"
 
-    override final fun equals(other : Any?) : Boolean {
+    final override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is SqlType) return false
 
@@ -27,7 +27,7 @@ sealed class SqlType(name : String? = null) : Named {
         return true
     }
 
-    override final fun hashCode() : Int {
+    final override fun hashCode(): Int {
         return name.hashCode()
     }
 
@@ -35,12 +35,12 @@ sealed class SqlType(name : String? = null) : Named {
     /**
      * Represents cached attributes for this [SqlType] at the column its created for
      */
-    inner open class Cache internal constructor(protected val attributes : MutableList<Attribute<*>>) {
-        constructor(attributes : Array<out Attribute<*>?>) : this(attributes.filterNotNull().toMutableList())
+    open inner class Cache internal constructor(protected val attributes: MutableList<Attribute<*>>) {
+        constructor(attributes: Array<out Attribute<*>?>) : this(attributes.filterNotNull().toMutableList())
 
         open fun name() = name
 
-        override fun toString() : String {
+        override fun toString(): String {
             return "${name()}${if (attributes.has<SqlPrimary>()) " PRIMARY KEY" else ""}${if (attributes.has<SqlNotNull>()) " NOT NULL" else ""}"
         }
 
@@ -57,15 +57,15 @@ sealed class SqlType(name : String? = null) : Named {
     /**
      * Represents an [SqlType] with a size
      */
-    abstract class SizedType(name : String? = null) : SqlType(name) {
+    abstract class SizedType(name: String? = null) : SqlType(name) {
 
-        operator fun get(size : Int, vararg attributes : Attribute<*>?) : Cache = SizedCache(size, attributes)
+        operator fun get(size: Int, vararg attributes: Attribute<*>?): Cache = SizedCache(size, attributes)
 
         @JvmName("otherGet")
-        operator fun get(size : Int, attributes : Array<out Attribute<*>?>) : Cache = SizedCache(size, attributes)
+        operator fun get(size: Int, attributes: Array<out Attribute<*>?>): Cache = SizedCache(size, attributes)
 
 
-        inner open class SizedCache internal constructor(protected val size : Int, attributes : Array<out Attribute<*>?>) : Cache(attributes) {
+        open inner class SizedCache internal constructor(protected val size: Int, attributes: Array<out Attribute<*>?>) : Cache(attributes) {
 
             override fun name() = "$name($size)"
 
@@ -76,9 +76,9 @@ sealed class SqlType(name : String? = null) : Named {
     /**
      * Represents an [SqlType] that is a number
      */
-    abstract class NumberType(name : String? = null) : SizedType(name) {
+    abstract class NumberType(name: String? = null) : SizedType(name) {
 
-        inner open class NumberCache internal constructor(protected val size : Int, attributes : Array<out Attribute<*>?>) : Cache(attributes) {
+        open inner class NumberCache internal constructor(protected val size: Int, attributes: Array<out Attribute<*>?>) : Cache(attributes) {
 
             override fun name() = "${super.name()}${if (attributes.has<SqlUnsigned>()) " UNSIGNED" else ""}"
 
@@ -89,15 +89,15 @@ sealed class SqlType(name : String? = null) : Named {
     /**
      * Represents an [SqlType] that is a floating point number
      */
-    abstract class DecimalType(name : String? = null) : NumberType(name) {
+    abstract class DecimalType(name: String? = null) : NumberType(name) {
 
-        operator fun get(size : Int, places : Int, vararg attributes : Attribute<*>?) : Cache = DecimalCache(size, places, attributes)
+        operator fun get(size: Int, places: Int, vararg attributes: Attribute<*>?): Cache = DecimalCache(size, places, attributes)
 
         @JvmName("otherGet")
-        operator fun get(size : Int, places : Int, attributes : Array<out Attribute<*>?>) : Cache = DecimalCache(size, places, attributes)
+        operator fun get(size: Int, places: Int, attributes: Array<out Attribute<*>?>): Cache = DecimalCache(size, places, attributes)
 
 
-        inner class DecimalCache internal constructor(size : Int, private val places : Int, attributes : Array<out Attribute<*>?>) : NumberCache(size, attributes) {
+        inner class DecimalCache internal constructor(size: Int, private val places: Int, attributes: Array<out Attribute<*>?>) : NumberCache(size, attributes) {
 
             override fun name() = "$name($size, $places)${if (attributes.has<SqlUnsigned>()) " UNSIGNED" else ""}"
 
@@ -108,17 +108,17 @@ sealed class SqlType(name : String? = null) : Named {
     /**
      * Represents an [SqlType] that holds a collection of some sort
      */
-    abstract class CollType(name : String? = null) : SqlType(name) {
+    abstract class CollType(name: String? = null) : SqlType(name) {
 
-        operator fun get(values : Array<out Any>, vararg attributes : Attribute<*>?) : Cache = CollCache(values, attributes)
+        operator fun get(values: Array<out Any>, vararg attributes: Attribute<*>?): Cache = CollCache(values, attributes)
 
         @JvmName("otherGet")
-        operator fun get(values : Array<out Any>, attributes : Array<out Attribute<*>?>) : Cache = CollCache(values, attributes)
+        operator fun get(values: Array<out Any>, attributes: Array<out Attribute<*>?>): Cache = CollCache(values, attributes)
 
 
-        inner class CollCache internal constructor(private val values : Array<out Any>, attributes : Array<out Attribute<*>?>) : Cache(attributes) {
+        inner class CollCache internal constructor(private val values: Array<out Any>, attributes: Array<out Attribute<*>?>) : Cache(attributes) {
 
-            override fun toString() : String {
+            override fun toString(): String {
                 val name = name()
                 return "$name(${values.joinToString { "'$it'" }})${super.toString().substringAfter(name)}"
             }
@@ -261,12 +261,12 @@ sealed class SqlType(name : String? = null) : Named {
      */
     object SqlSet : CollType() {
 
-        operator fun get(values : Collection<Any>, vararg attributes : Attribute<*>?) : Cache {
+        operator fun get(values: Collection<Any>, vararg attributes: Attribute<*>?): Cache {
             return get(values.toTypedArray(), attributes)
         }
 
         @JvmName("otherGet")
-        operator fun get(values : Collection<Any>, attributes : Array<out Attribute<*>?>) : Cache {
+        operator fun get(values: Collection<Any>, attributes: Array<out Attribute<*>?>): Cache {
             return get(values.toTypedArray(), attributes)
         }
 
@@ -281,12 +281,12 @@ sealed class SqlType(name : String? = null) : Named {
      */
     object SqlEnum : CollType() {
 
-        operator fun get(clazz : KClass<out Enum<*>>, vararg attributes : Attribute<*>?) : Cache {
+        operator fun get(clazz: KClass<out Enum<*>>, vararg attributes: Attribute<*>?): Cache {
             return get(clazz.java.enumConstants, attributes)
         }
 
         @JvmName("otherGet")
-        operator fun get(clazz : KClass<out Enum<*>>, attributes : Array<out Attribute<*>?>) : Cache {
+        operator fun get(clazz: KClass<out Enum<*>>, attributes: Array<out Attribute<*>?>): Cache {
             return get(clazz.java.enumConstants, attributes)
         }
 
@@ -296,9 +296,9 @@ sealed class SqlType(name : String? = null) : Named {
     /**
      * Represents row column specific attributes
      */
-    sealed class Attribute<out T : Any?>(override val name : String) : Named {
+    sealed class Attribute<out T : Any?>(override val name: String) : Named {
 
-        abstract internal val value : T
+        internal abstract val value: T
 
 
         /**
@@ -307,7 +307,7 @@ sealed class SqlType(name : String? = null) : Named {
          *  * Actually, I'm not even going to implement it... sue me.. ¯\_(-_-)_/¯
          *  * Also, I'm marking it as internal, I might revisit it later, idk..
          */
-        internal class SqlDefault<out T : Any?>(override val value : T) : Attribute<T>("DEFAULT")
+        internal class SqlDefault<out T : Any?>(override val value: T) : Attribute<T>("DEFAULT")
 
 
         /**

@@ -11,7 +11,7 @@ import kotlin.reflect.jvm.kotlinProperty
 /**
  * Describes an SQL Table, based on a JVM Object [T]
  */
-class Table<T : Any> @PublishedApi internal constructor(val clazz : KClass<T>) : Named {
+class Table<T : Any> @PublishedApi internal constructor(val clazz: KClass<T>) : Named {
 
     override val name = clazz.simpleName ?: clazz.jvmName
 
@@ -47,7 +47,7 @@ class Table<T : Any> @PublishedApi internal constructor(val clazz : KClass<T>) :
     fun getAllRowNames() = columns.keys.toList()
 
 
-    override fun equals(other : Any?) : Boolean {
+    override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Table<*>) return false
 
@@ -57,7 +57,7 @@ class Table<T : Any> @PublishedApi internal constructor(val clazz : KClass<T>) :
         return true
     }
 
-    override fun hashCode() : Int {
+    override fun hashCode(): Int {
         var result = clazz.hashCode()
         result = 31 * result + columns.hashCode()
         return result

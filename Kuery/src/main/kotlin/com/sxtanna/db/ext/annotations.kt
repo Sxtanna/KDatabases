@@ -1,7 +1,8 @@
 package com.sxtanna.db.ext
 
 import com.sxtanna.db.struct.SqlType
-import com.sxtanna.db.struct.SqlType.*
+import com.sxtanna.db.struct.SqlType.SqlEnum
+import com.sxtanna.db.struct.SqlType.SqlSet
 import java.math.BigDecimal
 import java.math.BigInteger
 import kotlin.annotation.AnnotationRetention.RUNTIME
@@ -34,7 +35,7 @@ annotation class Unsigned
  */
 @Retention(RUNTIME)
 @Target(PROPERTY, FIELD)
-annotation class Size(val length : Int, val places : Int = 0)
+annotation class Size(val length: Int, val places: Int = 0)
 
 /**
  * Use the type [SqlType.SqlChar] instead of [SqlType.SqlVarChar], and use this length
@@ -45,7 +46,7 @@ annotation class Size(val length : Int, val places : Int = 0)
  */
 @Retention(RUNTIME)
 @Target(PROPERTY, FIELD)
-annotation class Fixed(val length : Int)
+annotation class Fixed(val length: Int)
 
 /**
  * Marks this column as a "Tiny" variant of its type
@@ -88,11 +89,11 @@ annotation class Big
  */
 @Retention(RUNTIME)
 @Target(PROPERTY, FIELD)
-annotation class SetTypes(vararg val types : String)
+annotation class SetTypes(vararg val types: String)
 
 /**
  * Define the enum this [SqlEnum] uses
  */
 @Retention(RUNTIME)
 @Target(PROPERTY, FIELD)
-annotation class EnumType(val clazz : KClass<out Enum<*>>)
+annotation class EnumType(val clazz: KClass<out Enum<*>>)

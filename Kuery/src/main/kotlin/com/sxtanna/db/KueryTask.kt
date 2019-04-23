@@ -221,8 +221,7 @@ class KueryTask(private val kuery: Kuery, private val connection: Connection) : 
     }
 
     override fun <E : Any> update(table: Table<E>, rows: Collection<E>) {
-        val key = table.getPrimaryKey()
-                ?: return kuery.logger.error("Cannot update entire rows in a table without a primary key")
+        val key = table.getPrimaryKey() ?: return kuery.logger.error("Cannot update entire rows in a table without a primary key")
 
         val statement = "UPDATE `${table.name}` SET ${table.fields.joinToString { "`${it.name}`=?" }} WHERE `${key.name}`=?"
         kuery.logger.debug("Pushing statement `$statement`")
@@ -561,7 +560,6 @@ class KueryTask(private val kuery: Kuery, private val connection: Connection) : 
                     if (it is Between) {
                         this[index + 1 + ++offset] = it.other
                     }
-
                 }
 
             }
@@ -608,7 +606,6 @@ class KueryTask(private val kuery: Kuery, private val connection: Connection) : 
                     if (it is Between) {
                         this[index + 1 + ++offset] = it.other
                     }
-
                 }
 
             }

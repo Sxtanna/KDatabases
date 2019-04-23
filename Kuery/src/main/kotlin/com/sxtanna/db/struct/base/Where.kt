@@ -16,7 +16,7 @@ class Where<E : Any, R : Any?> {
     /**
      * **WHERE {column}=?**
      */
-    infix fun KProperty1<E, R>.equals(other : R) {
+    infix fun KProperty1<E, R>.equals(other: R) {
         val clause = Clause.Equal(false, other, name)
         clauses.add(clause)
     }
@@ -24,7 +24,7 @@ class Where<E : Any, R : Any?> {
     /**
      * **WHERE {column}!=?**
      */
-    infix fun KProperty1<E, R>.notEquals(other : R) {
+    infix fun KProperty1<E, R>.notEquals(other: R) {
         val clause = Clause.Equal(true, other, name)
         clauses.add(clause)
     }
@@ -33,7 +33,7 @@ class Where<E : Any, R : Any?> {
     /**
      * **WHERE {column} BETWEEN ? AND ?**
      */
-    infix fun KProperty1<E, R>.within(range : Pair<R, R>) {
+    infix fun KProperty1<E, R>.within(range: Pair<R, R>) {
         if (range.first == null || range.second == null) {
             throw IllegalArgumentException("Cannot use a range with null values $range")
         }
@@ -48,7 +48,7 @@ class Where<E : Any, R : Any?> {
     /**
      * **WHERE {column} NOT BETWEEN ? AND ?**
      */
-    infix fun KProperty1<E, R>.notWithin(range : Pair<R, R>) {
+    infix fun KProperty1<E, R>.notWithin(range: Pair<R, R>) {
         if (range.first == null || range.second == null) {
             throw IllegalArgumentException("Cannot use a range with null values $range")
         }
@@ -64,7 +64,7 @@ class Where<E : Any, R : Any?> {
     /**
      * **WHERE {column} LIKE %?**
      */
-    infix fun KProperty1<E, R>.endsWith(other : R) {
+    infix fun KProperty1<E, R>.endsWith(other: R) {
         val clause = Clause.Like(END, false, other, name)
         clauses.add(clause)
     }
@@ -72,7 +72,7 @@ class Where<E : Any, R : Any?> {
     /**
      * **WHERE {column} NOT LIKE %?**
      */
-    infix fun KProperty1<E, R>.notEndsWith(other : R) {
+    infix fun KProperty1<E, R>.notEndsWith(other: R) {
         val clause = Clause.Like(END, true, other, name)
         clauses.add(clause)
     }
@@ -80,7 +80,7 @@ class Where<E : Any, R : Any?> {
     /**
      * **WHERE {column} LIKE ?%**
      */
-    infix fun KProperty1<E, R>.startsWith(other : R) {
+    infix fun KProperty1<E, R>.startsWith(other: R) {
         val clause = Clause.Like(START, false, other, name)
         clauses.add(clause)
     }
@@ -88,7 +88,7 @@ class Where<E : Any, R : Any?> {
     /**
      * **WHERE {column} NOT LIKE ?%**
      */
-    infix fun KProperty1<E, R>.notStartsWith(other : R) {
+    infix fun KProperty1<E, R>.notStartsWith(other: R) {
         val clause = Clause.Like(START, true, other, name)
         clauses.add(clause)
     }
@@ -96,7 +96,7 @@ class Where<E : Any, R : Any?> {
     /**
      * **WHERE {column} LIKE %?%**
      */
-    infix fun KProperty1<E, R>.contains(other : R) {
+    infix fun KProperty1<E, R>.contains(other: R) {
         val clause = Clause.Like(CONTAINS, false, other, name)
         clauses.add(clause)
     }
@@ -104,7 +104,7 @@ class Where<E : Any, R : Any?> {
     /**
      * **WHERE {column} NOT LIKE %?%**
      */
-    infix fun KProperty1<E, R>.notContains(other : R)  {
+    infix fun KProperty1<E, R>.notContains(other: R) {
         val clause = Clause.Like(CONTAINS, true, other, name)
         clauses.add(clause)
     }
@@ -114,7 +114,7 @@ class Where<E : Any, R : Any?> {
     /**
      * **WHERE {column} < ?**
      */
-    infix fun KProperty1<E, R>.lessThan(other : R) {
+    infix fun KProperty1<E, R>.lessThan(other: R) {
         if (other == null) throw IllegalArgumentException("Cannot use a relative operator on null")
 
         val clause = Clause.Less(false, other, name)
@@ -124,7 +124,7 @@ class Where<E : Any, R : Any?> {
     /**
      * **WHERE {column} <= ?**
      */
-    infix fun KProperty1<E, R>.lessThanOrEquals(other : R) {
+    infix fun KProperty1<E, R>.lessThanOrEquals(other: R) {
         if (other == null) throw IllegalArgumentException("Cannot use a relative operator on null")
 
         val clause = Clause.Less(true, other, name)
@@ -134,7 +134,7 @@ class Where<E : Any, R : Any?> {
     /**
      * **WHERE {column} > ?**
      */
-    infix fun KProperty1<E, R>.moreThan(other : R) {
+    infix fun KProperty1<E, R>.moreThan(other: R) {
         if (other == null) throw IllegalArgumentException("Cannot use a relative operator on null")
 
         val clause = Clause.More(false, other, name)
@@ -144,7 +144,7 @@ class Where<E : Any, R : Any?> {
     /**
      * **WHERE {column} >= ?**
      */
-    infix fun KProperty1<E, R>.moreThanOrEquals(other : R) {
+    infix fun KProperty1<E, R>.moreThanOrEquals(other: R) {
         if (other == null) throw IllegalArgumentException("Cannot use a relative operator on null")
 
         val clause = Clause.More(true, other, name)
@@ -157,7 +157,7 @@ class Where<E : Any, R : Any?> {
     /**
      * Create a Pair&lt;[R], [R]> using the range operator
      */
-    operator fun R.rangeTo(other : R) : Pair<R, R> = this to other
+    operator fun R.rangeTo(other: R): Pair<R, R> = this to other
 
 
     /**
@@ -165,16 +165,16 @@ class Where<E : Any, R : Any?> {
      */
     sealed class Clause {
 
-        internal abstract val data : Any?
-        internal abstract val column : String
+        internal abstract val data: Any?
+        internal abstract val column: String
 
-        protected open var not : Boolean = false
-
-
-        override abstract fun toString() : String
+        protected open var not: Boolean = false
 
 
-        internal class Equal(override var not : Boolean, override val data : Any?, override val column : String) : Clause() {
+        abstract override fun toString(): String
+
+
+        internal class Equal(override var not: Boolean, override val data: Any?, override val column: String) : Clause() {
 
             override fun toString() = "`$column`${not.value("!")}=?"
 
@@ -188,9 +188,9 @@ class Where<E : Any, R : Any?> {
         }
 
 
-        internal class Like(pos : Position, override var not : Boolean, data : Any?, override val column : String) : Clause() {
+        internal class Like(pos: Position, override var not: Boolean, data: Any?, override val column: String) : Clause() {
 
-            override val data : Any = pos.toString().replace("?", data.toString())
+            override val data: Any = pos.toString().replace("?", data.toString())
 
 
             override fun toString() = "`$column` ${not.value("NOT ")}LIKE ?"
@@ -198,23 +198,24 @@ class Where<E : Any, R : Any?> {
         }
 
 
-        internal abstract class Relational(private val orEqual : Boolean, private val symbol : Char) : Clause() {
+        internal abstract class Relational(private val orEqual: Boolean, private val symbol: Char) : Clause() {
 
-            override final var not = false
+            final override var not = false
 
 
             override fun toString() = "`$column` $symbol${orEqual.value("=")} ?"
 
         }
 
-        internal class Less(orEqual : Boolean, override val data : Any, override val column : String) : Relational(orEqual, '<')
 
-        internal class More(orEqual : Boolean, override val data : Any, override val column : String) : Relational(orEqual, '>')
+        internal class Less(orEqual: Boolean, override val data: Any, override val column: String) : Relational(orEqual, '<')
+
+        internal class More(orEqual: Boolean, override val data: Any, override val column: String) : Relational(orEqual, '>')
 
     }
 
 
-    enum class Position(private val place : String) {
+    enum class Position(private val place: String) {
 
         END      ("%?"),
         START    ("?%"),

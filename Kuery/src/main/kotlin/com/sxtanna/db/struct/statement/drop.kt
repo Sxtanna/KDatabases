@@ -8,12 +8,12 @@ import com.sxtanna.db.struct.Table
  */
 interface DBDropper {
 
-    fun drop(database : Database)
+    fun drop(database: Database)
 
     /**
      * Drop this table
      */
-    fun <T : Any> drop(table : Table<T>)
+    fun <T : Any> drop(table: Table<T>)
 
 
     /**

@@ -3,7 +3,7 @@ package com.sxtanna.db.config
 /**
  * Contains the various configuration options available
  */
-data class KueryConfig(val data : OptionsData, val pool : OptionsPool, val user : OptionsUser) {
+data class KueryConfig(val data: OptionsData, val pool: OptionsPool, val user: OptionsUser) {
     internal constructor() : this(OptionsData(), OptionsPool(), OptionsUser())
 
 
@@ -13,7 +13,7 @@ data class KueryConfig(val data : OptionsData, val pool : OptionsPool, val user 
      *  * Port
      *  * Database name
      */
-    data class OptionsData(val address : String, val port : Short, val database : String) {
+    data class OptionsData(val address: String, val port: Short, val database: String) {
         internal constructor() : this("", 3306, "")
     }
 
@@ -24,12 +24,16 @@ data class KueryConfig(val data : OptionsData, val pool : OptionsPool, val user 
      *  * Idle Connection timeout (milliseconds)
      *  * Connecting Connection timeout (milliseconds)
      */
-    data class OptionsPool(val name : String, val size : Int, val connTimeout : Long, val idleTimeout : Long) {
+    data class OptionsPool(val name: String, val size: Int, val connTimeout: Long, val idleTimeout: Long) {
         internal constructor() : this("KueryPool", 10, 1_000L, 10_000L)
 
         init {
-            require(connTimeout >= 250) { "Minimum connection timeout is 250 milliseconds" }
-            require(idleTimeout >= 10_000L) { "Minimum idle timeout is 10,000 milliseconds (10 seconds)" }
+            require(connTimeout >= 250) {
+                "Minimum connection timeout is 250 milliseconds"
+            }
+            require(idleTimeout >= 10_000L) {
+                "Minimum idle timeout is 10,000 milliseconds (10 seconds)"
+            }
         }
 
     }
@@ -39,7 +43,7 @@ data class KueryConfig(val data : OptionsData, val pool : OptionsPool, val user 
      *  * Username
      *  * Password
      */
-    data class OptionsUser(val name : String, val auth : String) {
+    data class OptionsUser(val name: String, val auth: String) {
         internal constructor() : this("", "")
     }
 

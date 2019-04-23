@@ -6,23 +6,23 @@ import com.sxtanna.db.struct.base.Order.Direction.DESCEND
 /**
  * Describes the ordering of the results returned from a query
  */
-sealed class Order(private val direction : Direction) {
+sealed class Order(private val direction: Direction) {
 
-    internal abstract val column : String
+    internal abstract val column: String
 
 
     override fun toString() = "$column $direction"
 
 
-    internal class Ascend(override val column : String) : Order(ASCEND)
+    internal class Ascend(override val column: String) : Order(ASCEND)
 
-    internal class Descend(override val column : String) : Order(DESCEND)
+    internal class Descend(override val column: String) : Order(DESCEND)
 
 
     /**
      * The direction for ordering results
      */
-    enum class Direction(private val value : String) {
+    enum class Direction(private val value: String) {
 
         /**
          * Ascending ordering

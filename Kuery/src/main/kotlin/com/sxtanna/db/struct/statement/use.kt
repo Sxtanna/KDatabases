@@ -10,6 +10,6 @@ interface DBUser { // spooky name lol..
     /**
      * Use this database
      */
-    fun use(database : Database)
+    fun use(database: Database)
 
 }

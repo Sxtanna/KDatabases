@@ -9,13 +9,13 @@ import com.sxtanna.db.struct.Table
 interface DBCreator {
 
 
-    fun create(database : Database, andTables : Boolean = false)
+    fun create(database: Database, andTables: Boolean = false)
 
     /**
      * Create a table in the database, if it doesn't exist
      *  * Executed automatically
      */
-    fun <T : Any> create(table : Table<T>)
+    fun <T : Any> create(table: Table<T>)
 
 
     /**

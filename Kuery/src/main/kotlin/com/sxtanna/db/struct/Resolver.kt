@@ -5,7 +5,7 @@ import com.sxtanna.db.struct.SqlType.*
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.sql.ResultSet
-import java.util.*
+import java.util.UUID
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.findAnnotation
@@ -103,7 +103,7 @@ object Resolver {
         }
 
 
-        internal operator fun <T : Any?> get(resultSet : ResultSet, property : KProperty1<*, T>) : T {
+        internal operator fun <T : Any?> get(resultSet: ResultSet, property: KProperty1<*, T>): T {
             val type = property.returnType.jvmErasure
             val adapter = adapters[type] ?: adapters[if (type.isSubclassOf(Enum::class)) Enum::class else Any::class]
 
@@ -113,7 +113,7 @@ object Resolver {
         /**
          * Define how to resolve [T] from a [ResultSet]
          */
-        inline fun <reified T : Any> resolve(noinline block : ResultSet.(KProperty1<*, T>) -> T) {
+        inline fun <reified T : Any> resolve(noinline block: ResultSet.(KProperty1<*, T>) -> T) {
             adapters[T::class] = (block as ResultSet.(KProperty1<*, *>) -> Any)
         }
 
@@ -204,11 +204,11 @@ object Resolver {
                 val fixed = findAnnotation<Fixed>()?.length
 
                 val type = when {
-                    findAnnotation<Tiny>() != null -> SqlTinyText
-                    findAnnotation<Small>() != null -> SqlText
+                    findAnnotation<Tiny>() != null   -> SqlTinyText
+                    findAnnotation<Small>() != null  -> SqlText
                     findAnnotation<Medium>() != null -> SqlMediumText
-                    findAnnotation<Big>() != null -> SqlLongText
-                    else -> null
+                    findAnnotation<Big>() != null    -> SqlLongText
+                    else                             -> null
                 }
 
                 if (type != null) {
@@ -232,19 +232,19 @@ object Resolver {
             resolve<Int> {
 
                 val type = when {
-                    findAnnotation<Tiny>() != null -> SqlTinyInt
-                    findAnnotation<Small>() != null -> SqlSmallInt
+                    findAnnotation<Tiny>() != null   -> SqlTinyInt
+                    findAnnotation<Small>() != null  -> SqlSmallInt
                     findAnnotation<Medium>() != null -> SqlMediumInt
-                    findAnnotation<Big>() != null -> SqlBigInt
-                    else -> SqlInt
+                    findAnnotation<Big>() != null    -> SqlBigInt
+                    else                             -> SqlInt
                 }
 
-                val max = when(type) {
-                    SqlTinyInt -> 3
-                    SqlSmallInt -> 5
+                val max = when (type) {
+                    SqlTinyInt   -> 3
+                    SqlSmallInt  -> 5
                     SqlMediumInt -> 7
-                    SqlBigInt -> 19
-                    else -> 10
+                    SqlBigInt    -> 19
+                    else         -> 10
                 }
 
                 val size = findAnnotation<Size>()?.length ?: max
@@ -331,7 +331,7 @@ object Resolver {
         }
 
 
-        internal operator fun get(property : KProperty1<*, *>) : SqlType.Cache {
+        internal operator fun get(property: KProperty1<*, *>): SqlType.Cache {
             val type = property.returnType.jvmErasure
             val adapter = adapters[type] ?: adapters[if (type.isSubclassOf(Enum::class)) Enum::class else Any::class]
 
@@ -342,14 +342,14 @@ object Resolver {
         /**
          * Resolve type [T] with [block]
          */
-        inline fun <reified T : Any> resolve(noinline block : KProperty1<*, *>.() -> SqlType.Cache) {
+        inline fun <reified T : Any> resolve(noinline block: KProperty1<*, *>.() -> SqlType.Cache) {
             adapters[T::class] = block
         }
 
         /**
          * Resolve many [types] using the same [block]
          */
-        fun resolve(vararg types : KClass<*>, block : KProperty1<*, *>.() -> SqlType.Cache) {
+        fun resolve(vararg types: KClass<*>, block: KProperty1<*, *>.() -> SqlType.Cache) {
             types.forEach { adapters[it] = block }
         }
 

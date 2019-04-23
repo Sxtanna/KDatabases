@@ -4,7 +4,7 @@ import com.sxtanna.db.type.Named
 
 abstract class Database : Named {
 
-    override val name : String
+    override val name: String
         get() = this::class.simpleName ?: throw UnsupportedOperationException("Class ${this::class} cannot be a database")
 
     @PublishedApi
@@ -21,7 +21,7 @@ abstract class Database : Named {
         return add(Table.of(clazz))
     }
 
-    inline fun <reified T : Any> table() : Table<T> {
+    inline fun <reified T : Any> table(): Table<T> {
         return add(Table.of())
     }
 

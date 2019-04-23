@@ -14,7 +14,7 @@ import org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS
 import java.lang.System.getProperty
 import java.math.BigDecimal
 import java.sql.SQLException
-import java.util.*
+import java.util.UUID
 import java.util.UUID.randomUUID
 
 /**
@@ -25,8 +25,8 @@ import java.util.UUID.randomUUID
 @Suppress("ConstantConditionIf") // ignore this, I just hate the warning...
 class KueryTest {
 
-    data class Bank(@PrimaryKey val uuid : UUID, @Size(10, 2) val balance : BigDecimal)
-    data class User(@PrimaryKey val uuid : UUID, val name : String, val auth : String?)
+    data class Bank(@PrimaryKey val uuid: UUID, @Size(10, 2) val balance: BigDecimal)
+    data class User(@PrimaryKey val uuid: UUID, val name: String, val auth: String?)
 
 
     object TestingDB : Database() {
@@ -235,9 +235,9 @@ class KueryTest {
     //endregion
 
 
-    data class Users(@PrimaryKey @Size(10) val id : String, @Size(50) val name : String, val cityId : Int?)
+    data class Users(@PrimaryKey @Size(10) val id: String, @Size(50) val name: String, val cityId: Int?)
 
-    data class Cities(@PrimaryKey val id : Int, @Size(50) val name : String)
+    data class Cities(@PrimaryKey val id: Int, @Size(50) val name: String)
 
     @Test
     internal fun jetbrainsExposed() {
@@ -275,8 +275,8 @@ class KueryTest {
 
 
             update(users)
-                  .where(Users::id) { it equals "alex" }
-                  .set(Users::name, "Alexey")
+                .where(Users::id) { it equals "alex" }
+                .set(Users::name, "Alexey")
 
 
             delete(users).where(Users::name) { it endsWith "thing" }
@@ -323,8 +323,8 @@ class KueryTest {
         val userName = checkNotNull(getProperty("kuery${if (USE_OLD) ".old" else ""}.user")) // -Dkuery.user
         val passWord = checkNotNull(getProperty("kuery${if (USE_OLD) ".old" else ""}.pass")) // -Dkuery.pass
 
-        val address  = checkNotNull(getProperty("kuery${if (USE_OLD) ".old" else ""}.address"))                // -Dkuery.address
-        val port     = checkNotNull(getProperty("kuery${if (USE_OLD) ".old" else ""}.port", "3306")).toShort() // -Dkuery.port
+        val address = checkNotNull(getProperty("kuery${if (USE_OLD) ".old" else ""}.address"))                // -Dkuery.address
+        val port = checkNotNull(getProperty("kuery${if (USE_OLD) ".old" else ""}.port", "3306")).toShort() // -Dkuery.port
         val database = checkNotNull(getProperty("kuery${if (USE_OLD) ".old" else ""}.db", ""))                 // -Dkuery.db
 
     }

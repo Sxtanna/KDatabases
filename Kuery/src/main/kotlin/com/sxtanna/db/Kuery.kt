@@ -17,13 +17,15 @@ import java.sql.ResultSet
 /**
  * SQL Pool wrapper
  */
-class Kuery(private val config : KueryConfig, internal val logger : Logger = getLogger("Kuery-${config.pool.name}")) : DatabaseBridge<Connection> {
+class Kuery(private val config: KueryConfig, internal val logger: Logger = getLogger("Kuery-${config.pool.name}")) : DatabaseBridge<Connection> {
 
-    private lateinit var pool : HikariDataSource
+    private lateinit var pool: HikariDataSource
 
     override fun load() {
         logger.debug("Kuery is loading")
-        check(::pool.isInitialized.not()) { "Kuery is already loaded" }
+        check(::pool.isInitialized.not()) {
+            "Kuery is already loaded"
+        }
 
         val config = HikariConfig().apply {
             driverClassName = "org.mariadb.jdbc.Driver"
@@ -63,20 +65,20 @@ class Kuery(private val config : KueryConfig, internal val logger : Logger = get
     }
 
 
-    override fun connect() : Connection = pool.connection
+    override fun connect(): Connection = pool.connection
 
 
     /**
      * Create a [KueryTask] from this [Kuery] instance
      *  * Connection does not close immediately
      */
-    operator fun invoke() : KueryTask = KueryTask(this, connect())
+    operator fun invoke(): KueryTask = KueryTask(this, connect())
 
     /**
      * Create a [KueryTaskTable] from this [Kuery] instance
      *  * Connection does not close immediately
      */
-    operator fun <E : Any> invoke(table : Table<E>) = KueryTaskTable(table, invoke())
+    operator fun <E : Any> invoke(table: Table<E>) = KueryTaskTable(table, invoke())
 
 
     /**
@@ -85,7 +87,7 @@ class Kuery(private val config : KueryConfig, internal val logger : Logger = get
      *
      *  @return Optional result of database operations
      */
-    operator fun <R> invoke(block : KueryTask.() -> R) : R {
+    operator fun <R> invoke(block: KueryTask.() -> R): R {
         return connect {
             val result = KueryTask(this, it).let(block)
             if (result is Executed) result.execute()
@@ -101,7 +103,7 @@ class Kuery(private val config : KueryConfig, internal val logger : Logger = get
      *
      *  @return Optional result of database operations
      */
-    operator fun <E : Any, R> invoke(table : Table<E>, block : KueryTaskTable<E>.() -> R) : R {
+    operator fun <E : Any, R> invoke(table: Table<E>, block: KueryTaskTable<E>.() -> R): R {
         return connect {
             val result = KueryTaskTable(table, KueryTask(this, it)).let(block)
             if (result is Executed) result.execute()
@@ -115,14 +117,14 @@ class Kuery(private val config : KueryConfig, internal val logger : Logger = get
     /**
      * Execute a statement
      */
-    internal fun Connection.push(@Language("MySQL") statement : String, block : PreparedStatement.() -> Unit = {}) {
+    internal fun Connection.push(@Language("MySQL") statement: String, block: PreparedStatement.() -> Unit = {}) {
         prepareStatement(statement).apply(block).execute()
     }
 
     /**
      * Execute a query
      */
-    internal fun Connection.pull(@Language("MySQL") statement : String, block : PreparedStatement.() -> Unit = {}) : ResultSet {
+    internal fun Connection.pull(@Language("MySQL") statement: String, block: PreparedStatement.() -> Unit = {}): ResultSet {
         return prepareStatement(statement).apply(block).executeQuery()
     }
 

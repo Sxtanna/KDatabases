@@ -20,13 +20,13 @@ interface DBDeleter {
      *  * or
      *  * Returning it from a Kuery#invoke block
      */
-    fun <T : Any> delete(table : Table<T>) : Delete<T>
+    fun <T : Any> delete(table: Table<T>): Delete<T>
 
     /**
      * Delete the supplied rows from this table
      *  * Executed automatically
      */
-    fun <T : Any> delete(table : Table<T>, vararg rows : T) {
+    fun <T : Any> delete(table: Table<T>, vararg rows: T) {
         delete(table, rows.toList())
     }
 
@@ -34,7 +34,7 @@ interface DBDeleter {
      * Delete the supplied rows from this table
      *  * Executed automatically
      */
-    fun <T : Any> delete(table : Table<T>, rows : Collection<T>)
+    fun <T : Any> delete(table: Table<T>, rows: Collection<T>)
 
     /**
      * Delete all rows from this table
@@ -44,7 +44,7 @@ interface DBDeleter {
      *
      * @see [DBTruncater.truncate]
      */
-    fun <T : Any> deleteAllRows(table : Table<T>)
+    fun <T : Any> deleteAllRows(table: Table<T>)
 
 
     /**
@@ -55,14 +55,14 @@ interface DBDeleter {
         /**
          * @see [DBDeleter.delete]
          */
-        fun delete() : Delete<T>
+        fun delete(): Delete<T>
 
         /**
          * Deleter.delete(table : Table&lt;T>, varargs rows : T)
          *
          * @sample [Cannot_link_to_specific_method][delete]
          */
-        fun delete(vararg rows : T) {
+        fun delete(vararg rows: T) {
             delete(rows.toList())
         }
 
@@ -71,7 +71,7 @@ interface DBDeleter {
          *
          * @sample [Cannot_link_to_specific_method][delete]
          */
-        fun delete(rows : Collection<T>)
+        fun delete(rows: Collection<T>)
 
         /**
          * @see [DBDeleter.deleteAllRows]

@@ -11,7 +11,7 @@ import kotlin.reflect.full.findAnnotation
  */
 sealed class Duplicate<in T : Table<*>> {
 
-    abstract internal operator fun invoke(table : T) : String
+    internal abstract operator fun invoke(table: T): String
 
 
     /**
@@ -19,7 +19,7 @@ sealed class Duplicate<in T : Table<*>> {
      */
     object Ignore : Duplicate<Table<*>>() {
 
-        override fun invoke(table : Table<*>) : String {
+        override fun invoke(table: Table<*>): String {
             val key = table.fields.find { it.findAnnotation<PrimaryKey>() != null }
             return "$ODKU${key?.name}=${key?.name}"
         }
@@ -32,14 +32,14 @@ sealed class Duplicate<in T : Table<*>> {
      *  * Table's [PrimaryKey]
      *  * All rows
      */
-    class Update<in T : Table<E>, E : Any>(private val rows : List<KProperty1<E, *>>) : Duplicate<T>() {
-        constructor(vararg rows : KProperty1<E, *>) : this(rows.toList())
+    class Update<in T : Table<E>, E : Any>(private val rows: List<KProperty1<E, *>>) : Duplicate<T>() {
+        constructor(vararg rows: KProperty1<E, *>) : this(rows.toList())
 
 
-        override fun invoke(table : T) : String {
+        override fun invoke(table: T): String {
             val rows = rows.takeIf { it.isNotEmpty() }?.map { it.name } // provided
-                  ?: table.fields.find { it.findAnnotation<PrimaryKey>() != null }?.let { listOf(it.name) } // primary key
-                  ?: table.fields.map { it.name } // all rows
+                       ?: table.fields.find { it.findAnnotation<PrimaryKey>() != null }?.let { listOf(it.name) } // primary key
+                       ?: table.fields.map { it.name } // all rows
 
             return "$ODKU${rows.joinToString { "$it=VALUES($it)" }}"
         }

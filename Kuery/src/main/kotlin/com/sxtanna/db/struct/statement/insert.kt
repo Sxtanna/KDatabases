@@ -12,7 +12,7 @@ interface DBInserter {
      * Insert these rows into this table
      *  * Executes automatically
      */
-    fun <T : Any> insert(table : Table<T>, vararg rows : T) {
+    fun <T : Any> insert(table: Table<T>, vararg rows: T) {
         insert(table, rows.toList())
     }
 
@@ -20,13 +20,13 @@ interface DBInserter {
      * Insert these rows into this table
      *  * Executes automatically
      */
-    fun <T : Any> insert(table : Table<T>, rows : Collection<T>)
+    fun <T : Any> insert(table: Table<T>, rows: Collection<T>)
 
     /**
      * Insert these rows into this table, using this duplicate key flag
      *  * Executes automatically
      */
-    fun <T : Any> insert(table : Table<T>, duplicate : Duplicate<Table<T>>, vararg rows : T) {
+    fun <T : Any> insert(table: Table<T>, duplicate: Duplicate<Table<T>>, vararg rows: T) {
         insert(table, duplicate, rows.toList())
     }
 
@@ -34,7 +34,7 @@ interface DBInserter {
      * Insert these rows into this table, using this duplicate key flag
      *  * Executes automatically
      */
-    fun <T : Any> insert(table : Table<T>, duplicate : Duplicate<Table<T>>, rows : Collection<T>)
+    fun <T : Any> insert(table: Table<T>, duplicate: Duplicate<Table<T>>, rows: Collection<T>)
 
 
     /**
@@ -45,7 +45,7 @@ interface DBInserter {
         /**
          * @see [DBInserter.insert]
          */
-        fun insert(vararg rows : T) {
+        fun insert(vararg rows: T) {
             insert(rows.toList())
         }
 
@@ -54,14 +54,14 @@ interface DBInserter {
          *
          * @sample [Cannot_link_to_specific_method][insert]
          */
-        fun insert(rows : Collection<T>)
+        fun insert(rows: Collection<T>)
 
         /**
          * Insert.insert(table : Table&lt;T>, duplicate : Duplicate&lt;Table&lt;T>>, vararg rows : T)
          *
          * @sample [Cannot_link_to_specific_method][insert]
          */
-        fun insert(duplicate : Duplicate<Table<T>>, vararg rows : T) {
+        fun insert(duplicate: Duplicate<Table<T>>, vararg rows: T) {
             insert(duplicate, rows.toList())
         }
 
@@ -70,7 +70,7 @@ interface DBInserter {
          *
          * @sample [Cannot_link_to_specific_method][insert]
          */
-        fun insert(duplicate : Duplicate<Table<T>>, rows : Collection<T>)
+        fun insert(duplicate: Duplicate<Table<T>>, rows: Collection<T>)
 
     }
 

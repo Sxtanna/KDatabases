@@ -10,7 +10,7 @@ interface DBTruncater {
     /**
      * Truncate the data in this table
      */
-    fun <T : Any> truncate(table : Table<T>)
+    fun <T : Any> truncate(table: Table<T>)
 
 
     /**
