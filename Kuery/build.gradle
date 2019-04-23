@@ -1,5 +1,5 @@
 group 'com.sxtanna.db'
-version '1.5.3'
+version '1.6'
 
 ext {
     versionHikariCP = '2.7.4'
