@@ -559,7 +559,7 @@ class KueryTask(private val kuery: Kuery, private val connection: Connection) : 
                     this[index + 1 + offset] = it.data
 
                     if (it is Between) {
-                        this[index + 1 + ++offset] = it.data
+                        this[index + 1 + ++offset] = it.other
                     }
 
                 }
@@ -606,7 +606,7 @@ class KueryTask(private val kuery: Kuery, private val connection: Connection) : 
                     this[index + 1 + offset] = it.data
 
                     if (it is Between) {
-                        this[index + 1 + ++offset] = it.data
+                        this[index + 1 + ++offset] = it.other
                     }
 
                 }

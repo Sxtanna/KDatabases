@@ -181,7 +181,7 @@ class Where<E : Any, R : Any?> {
         }
 
 
-        internal class Between(override var not : Boolean, override val data : Any, private val other : Any, override val column : String) : Clause() {
+        internal class Between(override var not: Boolean, override val data: Any, val other: Any, override val column: String) : Clause() {
 
             override fun toString() = "`$column` ${not.value("NOT ")}BETWEEN ? AND ?"
 
