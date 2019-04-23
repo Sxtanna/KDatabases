@@ -599,12 +599,12 @@ class KueryTask(private val kuery: Kuery, private val connection: Connection) : 
                 value.forEach { this[index++] = it.value }
 
                 var offset = 0
-                where.forEachIndexed { index, it ->
+                where.forEachIndexed { _, it ->
 
-                    this[index + 1 + offset] = it.data
+                    this[index + offset] = it.data
 
                     if (it is Between) {
-                        this[index + 1 + ++offset] = it.other
+                        this[index + ++offset] = it.other
                     }
                 }
 
