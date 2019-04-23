@@ -11,8 +11,18 @@ abstract class Database : Named {
     internal val tables = mutableListOf<Table<*>>()
 
 
+    fun <T : Any> add(table: Table<T>): Table<T> {
+        tables += table
+        return table
+    }
+
+
+    fun <T : Any> table(clazz: Class<T>): Table<T> {
+        return add(Table.of(clazz))
+    }
+
     inline fun <reified T : Any> table() : Table<T> {
-        return Table.of<T>().also { tables.add(it) }
+        return add(Table.of())
     }
 
 }
