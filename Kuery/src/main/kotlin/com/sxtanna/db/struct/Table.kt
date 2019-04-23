@@ -2,9 +2,12 @@ package com.sxtanna.db.struct
 
 import com.sxtanna.db.ext.PrimaryKey
 import com.sxtanna.db.type.Named
+import java.beans.Transient
+import java.lang.reflect.Modifier
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.findAnnotation
+import kotlin.reflect.jvm.isAccessible
 import kotlin.reflect.jvm.jvmName
 import kotlin.reflect.jvm.kotlinProperty
 
@@ -17,8 +20,15 @@ class Table<T : Any> @PublishedApi internal constructor(val clazz: KClass<T>) : 
 
     internal val fields by lazy {
         clazz.java.declaredFields
-              .filter { it.getAnnotation(Transient::class.java) == null }
-              .mapNotNull { it.kotlinProperty as? KProperty1<T, *> }
+            .filterNot {
+                Modifier.isTransient(it.modifiers) || it.isAnnotationPresent(Transient::class.java)
+            }
+            .mapNotNull {
+                it.kotlinProperty as? KProperty1<T, *>
+            }
+            .apply {
+                forEach { it.isAccessible = true }
+            }
     }
 
     internal val columns = mutableMapOf<String, SqlType.Cache>()
