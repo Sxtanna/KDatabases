@@ -76,6 +76,9 @@ class Table<T : Any> @PublishedApi internal constructor(val clazz: KClass<T>) : 
 
     companion object {
 
+        @JvmStatic
+        fun <T : Any> of(clazz: Class<T>) = Table(clazz.kotlin)
+
         /**
          * Create a table from a field
          */
