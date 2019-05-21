@@ -12,6 +12,7 @@ import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS
 import java.lang.System.getProperty
+import java.lang.System.getenv
 import java.math.BigDecimal
 import java.sql.SQLException
 import java.util.UUID
@@ -22,6 +23,7 @@ import java.util.UUID.randomUUID
  * @sample [useConnection]
  */
 @TestInstance(PER_CLASS)
+@TestMethodOrder(MethodOrderer.Alphanumeric::class)
 @Suppress("ConstantConditionIf") // ignore this, I just hate the warning...
 class KueryTest {
 
@@ -39,7 +41,7 @@ class KueryTest {
     }
 
 
-    private val config = KueryConfig(OptionsData(address, port, database), OptionsPool(), OptionsUser(userName, passWord))
+    private val config = KueryConfig(OptionsData(host, port.toShort(), data), OptionsPool(), OptionsUser(user, pass))
 
     private val kuery = Kuery(config)
 
@@ -72,18 +74,14 @@ class KueryTest {
      */
     @Test
     internal fun test0() {
-
         kuery {
 
-            if (USE_OLD) create(TestingDB, true)
-            else {
-                use(TestingDB)
+            use(TestingDB)
 
-                create(TestingDB.BANKS)
-                create(TestingDB.USERS)
-            }
+            create(TestingDB.BANKS)
+            create(TestingDB.USERS)
+
         }
-
     }
 
     /**
@@ -113,9 +111,6 @@ class KueryTest {
     internal fun test2() {
 
         val (all) = kuery(TestingDB.USERS) {
-
-            if (USE_OLD.not()) task.use(TestingDB)
-
             delete().where(User::name) { it equals "First" }.execute()
             select()
         }
@@ -143,7 +138,6 @@ class KueryTest {
     internal fun test4() {
 
         kuery(TestingDB.USERS) {
-
             val uuid = randomUUID()
 
             val user = User(uuid, "Sxtanna", "Password")
@@ -158,7 +152,6 @@ class KueryTest {
 
             assertEquals(1, auth.size) { "Auth result count was wrong" }
             assertEquals("NewPassword", auth[0]) { "Auth result was wrong" }
-
         }
 
     }
@@ -168,7 +161,6 @@ class KueryTest {
      */
     @Test
     internal fun test5() {
-
         kuery {
             create(TestingDB.BANKS)
             create(TestingDB.USERS)
@@ -193,9 +185,7 @@ class KueryTest {
                     it equals "Sxtanna"
                 }
             }
-
         }
-
     }
 
     /**
@@ -239,6 +229,7 @@ class KueryTest {
 
     data class Cities(@PrimaryKey val id: Int, @Size(50) val name: String)
 
+
     @Test
     internal fun jetbrainsExposed() {
 
@@ -246,8 +237,6 @@ class KueryTest {
         val cities = Table.of<Cities>()
 
         kuery {
-
-            if (USE_OLD.not()) use(TestingDB)
 
             create(users)
             create(cities)
@@ -298,7 +287,6 @@ class KueryTest {
      * Example
      */
     private fun useConnection() {
-
         kuery() // connection opened here, closed via timeout
 
         kuery {
@@ -309,7 +297,6 @@ class KueryTest {
             }
 
         } // connection closed here
-
     }
 
 
@@ -318,14 +305,12 @@ class KueryTest {
      */
     private companion object {
 
-        private val USE_OLD = false // true points to a pre selected database
+        val user = checkNotNull(getProperty("kuery.user") ?: getenv("kuery.user"))            // -Dkuery.user
+        val pass = checkNotNull(getProperty("kuery.pass") ?: getenv("kuery.pass"))            // -Dkuery.pass
 
-        val userName = checkNotNull(getProperty("kuery${if (USE_OLD) ".old" else ""}.user")) // -Dkuery.user
-        val passWord = checkNotNull(getProperty("kuery${if (USE_OLD) ".old" else ""}.pass")) // -Dkuery.pass
-
-        val address = checkNotNull(getProperty("kuery${if (USE_OLD) ".old" else ""}.address"))                // -Dkuery.address
-        val port = checkNotNull(getProperty("kuery${if (USE_OLD) ".old" else ""}.port", "3306")).toShort() // -Dkuery.port
-        val database = checkNotNull(getProperty("kuery${if (USE_OLD) ".old" else ""}.db", ""))                 // -Dkuery.db
+        val host = checkNotNull(getProperty("kuery.host") ?: getenv("kuery.host"))            // -Dkuery.host
+        val port = checkNotNull(getProperty("kuery.port") ?: getenv("kuery.port") ?: "3306")  // -Dkuery.port
+        val data = checkNotNull(getProperty("kuery.data") ?: getenv("kuery.data") ?: "")      // -Dkuery.data
 
     }
 
