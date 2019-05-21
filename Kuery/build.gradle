@@ -2,21 +2,19 @@ group 'com.sxtanna.db'
 version '1.6'
 
 ext {
-    versionHikariCP = '2.7.4'
-    versionMariaDBCJ = '2.2.0'
+    versionHikariCP = '3.3.1'
+    versionMariaDBCJ = '2.4.1'
 
-    versionSLF4JSimple = '1.8.0-beta0'
+    versionSLF4JSimple = '1.8.0-beta4'
 }
 
 dependencies {
-
     implementation project(":Common")
 
     implementation "com.zaxxer:HikariCP:$versionHikariCP"
     implementation "org.mariadb.jdbc:mariadb-java-client:$versionMariaDBCJ"
 
     testCompile "org.slf4j:slf4j-simple:$versionSLF4JSimple"
-
 }
 
 uploadArchives {

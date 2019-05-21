@@ -5,10 +5,9 @@ buildscript {
 
     ext {
         versionDokka = '0.9.18'
-        versionJUnit = '5.1.0-M1'
 
         versionShadow = '5.0.0'
-        versionKotlin = '1.3.30'
+        versionKotlin = '1.3.31'
 
         versionNexusStaging = '0.5.1'
     }
@@ -65,7 +64,9 @@ subprojects {
         compileOnly "org.jetbrains.kotlin:kotlin-reflect"
         compileOnly "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 
-        testCompile "org.junit.jupiter:junit-jupiter-engine:$versionJUnit"
+        testImplementation "org.junit.jupiter:junit-jupiter-api:+"
+        testImplementation "org.junit.jupiter:junit-jupiter-engine:+"
+        testImplementation "org.junit.platform:junit-platform-launcher:+"
     }
 
     sourceSets {
@@ -84,6 +85,7 @@ subprojects {
         classifier = 'sources'
         from sourceSets.main.allSource
     }
+    
     task javadocJar(type: Jar, dependsOn: dokka) {
         classifier = 'javadoc'
         from javadoc.destinationDir
