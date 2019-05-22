@@ -64,9 +64,9 @@ subprojects {
         compileOnly "org.jetbrains.kotlin:kotlin-reflect"
         compileOnly "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 
-        testImplementation "org.junit.jupiter:junit-jupiter-api:+"
-        testImplementation "org.junit.jupiter:junit-jupiter-engine:+"
-        testImplementation "org.junit.platform:junit-platform-launcher:+"
+        testImplementation "org.junit.jupiter:junit-jupiter-api:5.5.0-M1"
+        testImplementation "org.junit.jupiter:junit-jupiter-engine:5.5.0-M1"
+        testImplementation "org.junit.platform:junit-platform-launcher:1.5.0-M1"
     }
 
     sourceSets {
