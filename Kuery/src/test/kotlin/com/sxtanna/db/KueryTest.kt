@@ -305,12 +305,12 @@ class KueryTest {
      */
     private companion object {
 
-        val user = checkNotNull(getProperty("kuery.user") ?: getenv("kuery.user"))            // -Dkuery.user
-        val pass = checkNotNull(getProperty("kuery.pass") ?: getenv("kuery.pass"))            // -Dkuery.pass
+        val user = checkNotNull(getProperty("kuery_user") ?: getenv("kuery_user"))            // -Dkuery_user
+        val pass = checkNotNull(getProperty("kuery_pass") ?: getenv("kuery_pass"))            // -Dkuery_pass
 
-        val host = checkNotNull(getProperty("kuery.host") ?: getenv("kuery.host"))            // -Dkuery.host
-        val port = checkNotNull(getProperty("kuery.port") ?: getenv("kuery.port") ?: "3306")  // -Dkuery.port
-        val data = checkNotNull(getProperty("kuery.data") ?: getenv("kuery.data") ?: "")      // -Dkuery.data
+        val host = checkNotNull(getProperty("kuery_host") ?: getenv("kuery_host"))            // -Dkuery_host
+        val port = checkNotNull(getProperty("kuery_port") ?: getenv("kuery_port") ?: "3306")  // -Dkuery_port
+        val data = checkNotNull(getProperty("kuery_data") ?: getenv("kuery_data") ?: "")      // -Dkuery_data
 
     }
 
