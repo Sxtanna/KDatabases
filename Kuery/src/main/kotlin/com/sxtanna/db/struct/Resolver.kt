@@ -5,7 +5,7 @@ import com.sxtanna.db.struct.SqlType.*
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.sql.ResultSet
-import java.util.UUID
+import java.util.*
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.findAnnotation
@@ -35,6 +35,7 @@ object Resolver {
      *  * [Float]
      *  * [Double]
      *  * [BigDecimal]
+     *  * [Date]
      *
      * New implementations can be added using
      * [SqlI.resolve]
@@ -98,6 +99,10 @@ object Resolver {
 
             resolve<BigDecimal> {
                 getBigDecimal(it.name)
+            }
+
+            resolve<Date> {
+                getDate(it.name)
             }
 
         }
