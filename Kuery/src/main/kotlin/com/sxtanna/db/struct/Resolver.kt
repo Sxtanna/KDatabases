@@ -5,6 +5,7 @@ import com.sxtanna.db.struct.SqlType.*
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.sql.ResultSet
+import java.sql.Timestamp
 import java.util.*
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
@@ -36,7 +37,7 @@ object Resolver {
      *  * [Double]
      *  * [BigDecimal]
      *  * [Date]
-     *
+     *  * [Timestamp]
      * New implementations can be added using
      * [SqlI.resolve]
      */
@@ -103,6 +104,10 @@ object Resolver {
 
             resolve<Date> {
                 getDate(it.name)
+            }
+
+            resolve<Timestamp> {
+                getTimestamp(it.name)
             }
 
         }
@@ -174,6 +179,8 @@ object Resolver {
      *  * [Float]
      *  * [Double]
      *  * [BigDecimal]
+     *  * [Date]
+     *  * [Timestamp]
      *  * If the object has no resolver, a [SqlVarChar] is used with its [Object.toString] result
      *
      * New implementations can be added using
@@ -182,7 +189,7 @@ object Resolver {
     object SqlO {
 
         @PublishedApi
-        internal val adapters = mutableMapOf<KClass<*>, KProperty1<*, *>.() -> SqlType.Cache>()
+        internal val adapters = mutableMapOf<KClass<*>, KProperty1<*, *>.() -> Cache>()
 
 
         init {
@@ -203,6 +210,7 @@ object Resolver {
                 val clazz = returnType.jvmErasure as KClass<out Enum<*>>
                 SqlEnum[clazz, isNotNull(), isPrimary()]
             }
+
 
             resolve(Any::class, String::class) {
 
@@ -289,6 +297,13 @@ object Resolver {
             }
 
 
+            resolve<Timestamp> {
+                SqlTimestamp[isNotNull()]
+            }
+            resolve<Date> {
+                SqlDate[isNotNull()]
+            }
+
             // start declared
 
             resolveWith<SqlTinyInt, Byte>()
@@ -301,6 +316,10 @@ object Resolver {
             }
 
             resolveWith<SqlInt, Int>()
+
+            resolveWith<SqlDate, Date>()
+
+            resolveWith<SqlTimestamp, Timestamp>()
 
             resolveWith<SqlBigInt, Long>()
 
@@ -336,7 +355,7 @@ object Resolver {
         }
 
 
-        internal operator fun get(property: KProperty1<*, *>): SqlType.Cache {
+        internal operator fun get(property: KProperty1<*, *>): Cache {
             val type = property.returnType.jvmErasure
             val adapter = adapters[type] ?: adapters[if (type.isSubclassOf(Enum::class)) Enum::class else Any::class]
 
@@ -347,14 +366,14 @@ object Resolver {
         /**
          * Resolve type [T] with [block]
          */
-        inline fun <reified T : Any> resolve(noinline block: KProperty1<*, *>.() -> SqlType.Cache) {
+        inline fun <reified T : Any> resolve(noinline block: KProperty1<*, *>.() -> Cache) {
             adapters[T::class] = block
         }
 
         /**
          * Resolve many [types] using the same [block]
          */
-        fun resolve(vararg types: KClass<*>, block: KProperty1<*, *>.() -> SqlType.Cache) {
+        fun resolve(vararg types: KClass<*>, block: KProperty1<*, *>.() -> Cache) {
             types.forEach { adapters[it] = block }
         }
 
