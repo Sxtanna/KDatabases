@@ -54,7 +54,7 @@ object Resolver {
             }
 
             resolve<UUID> {
-                UUID.fromString(getString(it.name))
+                UUID.fromString(getString(it.name) ?: return@resolve null)
             }
 
             resolve<Boolean> {
@@ -123,7 +123,7 @@ object Resolver {
         /**
          * Define how to resolve [T] from a [ResultSet]
          */
-        inline fun <reified T : Any> resolve(noinline block: ResultSet.(KProperty1<*, T>) -> T) {
+        inline fun <reified T : Any> resolve(noinline block: ResultSet.(KProperty1<*, T>) -> T?) {
             adapters[T::class] = (block as ResultSet.(KProperty1<*, *>) -> Any)
         }
 
