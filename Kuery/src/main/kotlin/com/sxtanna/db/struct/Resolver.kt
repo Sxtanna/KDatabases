@@ -50,7 +50,7 @@ object Resolver {
         init {
 
             resolve<Char> {
-                getString(it.name)[0]
+                getString(it.name).getOrNull(0)
             }
 
             resolve<UUID> {
@@ -62,7 +62,7 @@ object Resolver {
             }
 
             resolve<Enum<*>> {
-                val value = getString(it.name)
+                val value = getString(it.name) ?: return@resolve null
                 checkNotNull(it.returnType.jvmErasure.java.enumConstants.filterIsInstance<Enum<*>>().find { it.name == value })
             }
 
@@ -87,7 +87,7 @@ object Resolver {
             }
 
             resolve<BigInteger> {
-                BigInteger(getString(it.name))
+                BigInteger(getString(it.name) ?: return@resolve null)
             }
 
             resolve<Float> {
@@ -355,7 +355,7 @@ object Resolver {
         }
 
 
-        internal operator fun get(property: KProperty1<*, *>): Cache {
+        internal operator fun get(property: KProperty1<*, *>): SqlType.Cache {
             val type = property.returnType.jvmErasure
             val adapter = adapters[type] ?: adapters[if (type.isSubclassOf(Enum::class)) Enum::class else Any::class]
 
@@ -366,14 +366,14 @@ object Resolver {
         /**
          * Resolve type [T] with [block]
          */
-        inline fun <reified T : Any> resolve(noinline block: KProperty1<*, *>.() -> Cache) {
+        inline fun <reified T : Any> resolve(noinline block: KProperty1<*, *>.() -> SqlType.Cache) {
             adapters[T::class] = block
         }
 
         /**
          * Resolve many [types] using the same [block]
          */
-        fun resolve(vararg types: KClass<*>, block: KProperty1<*, *>.() -> Cache) {
+        fun resolve(vararg types: KClass<*>, block: KProperty1<*, *>.() -> SqlType.Cache) {
             types.forEach { adapters[it] = block }
         }
 

@@ -314,7 +314,7 @@ sealed class SqlType(name: String? = null) : Named {
         /**
          * Represents the default value for rows in this column
          *  * You should like... never use this btw... this is an ORM, don't be a dumbo
-         *  * Actually, I'm not even going to implement it... sue me.. �\_(-_-)_/�
+         *  * Actually, I'm not even going to implement it... sue me.. ¯\_(-_-)_/¯
          *  * Also, I'm marking it as internal, I might revisit it later, idk..
          */
         internal class SqlDefault<out T : Any?>(override val value: T) : Attribute<T>("DEFAULT")
