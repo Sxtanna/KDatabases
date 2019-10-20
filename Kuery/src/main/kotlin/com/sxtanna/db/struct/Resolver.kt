@@ -5,6 +5,7 @@ import com.sxtanna.db.struct.SqlType.*
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.sql.ResultSet
+import java.sql.Timestamp
 import java.util.*
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
@@ -36,7 +37,7 @@ object Resolver {
      *  * [Double]
      *  * [BigDecimal]
      *  * [Date]
-     *
+     *  * [Timestamp]
      * New implementations can be added using
      * [SqlI.resolve]
      */
@@ -49,11 +50,11 @@ object Resolver {
         init {
 
             resolve<Char> {
-                getString(it.name)[0]
+                getString(it.name).getOrNull(0)
             }
 
             resolve<UUID> {
-                UUID.fromString(getString(it.name))
+                UUID.fromString(getString(it.name) ?: return@resolve null)
             }
 
             resolve<Boolean> {
@@ -61,7 +62,7 @@ object Resolver {
             }
 
             resolve<Enum<*>> {
-                val value = getString(it.name)
+                val value = getString(it.name) ?: return@resolve null
                 checkNotNull(it.returnType.jvmErasure.java.enumConstants.filterIsInstance<Enum<*>>().find { it.name == value })
             }
 
@@ -86,7 +87,7 @@ object Resolver {
             }
 
             resolve<BigInteger> {
-                BigInteger(getString(it.name))
+                BigInteger(getString(it.name) ?: return@resolve null)
             }
 
             resolve<Float> {
@@ -105,6 +106,10 @@ object Resolver {
                 getDate(it.name)
             }
 
+            resolve<Timestamp> {
+                getTimestamp(it.name)
+            }
+
         }
 
 
@@ -118,7 +123,7 @@ object Resolver {
         /**
          * Define how to resolve [T] from a [ResultSet]
          */
-        inline fun <reified T : Any> resolve(noinline block: ResultSet.(KProperty1<*, T>) -> T) {
+        inline fun <reified T : Any> resolve(noinline block: ResultSet.(KProperty1<*, T>) -> T?) {
             adapters[T::class] = (block as ResultSet.(KProperty1<*, *>) -> Any)
         }
 
@@ -174,6 +179,8 @@ object Resolver {
      *  * [Float]
      *  * [Double]
      *  * [BigDecimal]
+     *  * [Date]
+     *  * [Timestamp]
      *  * If the object has no resolver, a [SqlVarChar] is used with its [Object.toString] result
      *
      * New implementations can be added using
@@ -182,7 +189,7 @@ object Resolver {
     object SqlO {
 
         @PublishedApi
-        internal val adapters = mutableMapOf<KClass<*>, KProperty1<*, *>.() -> SqlType.Cache>()
+        internal val adapters = mutableMapOf<KClass<*>, KProperty1<*, *>.() -> Cache>()
 
 
         init {
@@ -203,6 +210,7 @@ object Resolver {
                 val clazz = returnType.jvmErasure as KClass<out Enum<*>>
                 SqlEnum[clazz, isNotNull(), isPrimary()]
             }
+
 
             resolve(Any::class, String::class) {
 
@@ -289,6 +297,13 @@ object Resolver {
             }
 
 
+            resolve<Timestamp> {
+                SqlTimestamp[isNotNull()]
+            }
+            resolve<Date> {
+                SqlDate[isNotNull()]
+            }
+
             // start declared
 
             resolveWith<SqlTinyInt, Byte>()
@@ -301,6 +316,10 @@ object Resolver {
             }
 
             resolveWith<SqlInt, Int>()
+
+            resolveWith<SqlDate, Date>()
+
+            resolveWith<SqlTimestamp, Timestamp>()
 
             resolveWith<SqlBigInt, Long>()
 

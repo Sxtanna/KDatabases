@@ -6,8 +6,8 @@ buildscript {
     ext {
         versionDokka = '0.9.18'
 
-        versionShadow = '5.0.0'
-        versionKotlin = '1.3.31'
+        versionShadow = '5.1.0'
+        versionKotlin = '1.3.50'
 
         versionNexusStaging = '0.5.1'
     }
@@ -34,7 +34,7 @@ buildscript {
 
 }
 
-apply plugin: 'io.codearte.nexus-staging'
+//apply plugin: 'io.codearte.nexus-staging'
 
 subprojects {
 
@@ -42,7 +42,7 @@ subprojects {
     apply plugin: 'idea'
     apply plugin: 'kotlin'
     apply plugin: 'maven'
-    apply plugin: 'signing'
+    //apply plugin: 'signing'
     apply plugin: 'java-library'
     apply plugin: 'org.jetbrains.dokka'
     apply plugin: 'com.github.johnrengelman.shadow'
@@ -86,10 +86,11 @@ subprojects {
         from sourceSets.main.allSource
     }
     
+    /*
     task javadocJar(type: Jar, dependsOn: dokka) {
         classifier = 'javadoc'
         from javadoc.destinationDir
-    }
+    }*/
 
     // options
     sourceCompatibility = JavaVersion.VERSION_1_8
@@ -106,16 +107,18 @@ subprojects {
         classifier = ""
     }
 
+    /*
     dokka {
         outputFormat = 'javadoc'
         outputDirectory = javadoc.destinationDir
-    }
+    }*/
 
     artifacts {
         archives sourcesJar
-        archives javadocJar
+        //archives javadocJar
     }
 
+    /*
     signing {
         required { gradle.taskGraph.hasTask('uploadArchives') }
 
@@ -126,11 +129,11 @@ subprojects {
 
     nexusStaging {
         packageGroup = 'com.sxtanna'
-    }
+    }*/
 
 
     // global build task
-    task buildProjects(dependsOn: [clean, shadowJar, sourcesJar, javadocJar])
+    task buildProjects(dependsOn: [clean, shadowJar, sourcesJar])
 
     /**
      * Automatic upload, close, and release is broken for some reason

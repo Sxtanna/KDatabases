@@ -1,6 +1,7 @@
 group 'com.sxtanna.db'
 version '1.2'
 
+/*
 uploadArchives {
     dependsOn = [clean, signJavadocJar, signSourcesJar, signShadowJar]
 
@@ -50,4 +51,4 @@ uploadArchives {
 
         }
     }
-}
+}*/

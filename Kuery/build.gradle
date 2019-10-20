@@ -1,5 +1,5 @@
 group 'com.sxtanna.db'
-version '1.6'
+version '1.7'
 
 ext {
     versionHikariCP = '3.3.1'
@@ -17,6 +17,7 @@ dependencies {
     testCompile "org.slf4j:slf4j-simple:$versionSLF4JSimple"
 }
 
+/*
 uploadArchives {
     dependsOn = [clean, signJavadocJar, signSourcesJar, signShadowJar]
 
@@ -65,4 +66,4 @@ uploadArchives {
             }
         }
     }
-}
+}*/
